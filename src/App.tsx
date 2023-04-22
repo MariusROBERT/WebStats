@@ -1,12 +1,22 @@
 import React from 'react';
 import './App.css';
-import MainHeader from "./components/MainHeader";
+import Main from "./pages/Main";
+import {BrowserRouter, Routes, Route} from 'react-router-dom';
+import Spotify from "./pages/Spotify";
+import Youtube from "./pages/Youtube";
 
 function App() {
   return (
-      <div className="App">
-        <MainHeader />
-      </div>
+        <BrowserRouter>
+          <Routes>
+            <Route path={"/"} element={<Main/>}>
+            </Route>
+            <Route path={"/spotify"} element={<Spotify/>}>
+            </Route>
+            <Route path={"/youtube"} element={<Youtube/>}>
+            </Route>
+          </Routes>
+        </BrowserRouter>
   );
 }
 

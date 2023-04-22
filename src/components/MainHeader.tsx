@@ -1,10 +1,6 @@
 import {Button, Flex, Header} from "@mantine/core";
 import {IconBrandSpotify, IconBrandYoutube, IconHome2} from "@tabler/icons-react";
 
-// interface MainHeaderProps {
-//   menus: { title: string, path: string, icon: string }[];
-// }
-// export default function MainHeader({menus}: MainHeaderProps) {
 export default function MainHeader() {
   const menus = [
     {title: "Home", path: "/", icon: <IconHome2 size={15}/>},
