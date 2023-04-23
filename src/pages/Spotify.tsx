@@ -11,7 +11,7 @@ export default function Spotify() {
           }}
       >
         <div className="App" style={{height:"100vh"}}>
-          <MainHeader/>
+          <MainHeader currentPage={"Spotify"}/>
         </div>
       </MantineProvider>
   )

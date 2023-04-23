@@ -2,7 +2,7 @@ import React from "react";
 import MainHeader from "../components/MainHeader";
 import {MantineProvider} from "@mantine/core";
 
-export default function Main() {
+export default function Home() {
   return (
       <MantineProvider
           theme={{
@@ -11,7 +11,7 @@ export default function Main() {
           }}
       >
         <div className="App" style={{height:"100vh"}}>
-          <MainHeader/>
+          <MainHeader currentPage={"Home"}/>
         </div>
       </MantineProvider>
   )
