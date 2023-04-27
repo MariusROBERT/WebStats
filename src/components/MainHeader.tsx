@@ -3,9 +3,9 @@ import {IconBrandSpotify, IconBrandYoutube, IconHome2} from "@tabler/icons-react
 
 export default function MainHeader(props: any) {
   const menus = [
-    {title: "Home", path: "/", icon: <IconHome2 size={15}/>, working: true},
-    {title: "Spotify", path: "/spotify", icon: <IconBrandSpotify size={15}/>, working: false},
-    {title: "Youtube", path: "/youtube", icon: <IconBrandYoutube size={15}/>, working: true},
+    {title: "Home", path: "/", icon: <IconHome2 size={25}/>, working: true},
+    {title: "Youtube", path: "/youtube", icon: <IconBrandYoutube size={25}/>, working: true},
+    {title: "Spotify", path: "/spotify", icon: <IconBrandSpotify size={25}/>, working: false},
   ]
 
   const buttons = menus.map((menu) => (
@@ -31,7 +31,7 @@ export default function MainHeader(props: any) {
   const height = 100;
 
   return (
-      <Header height={height} mb={"xl"}>
+      <Header height={height} mb={"xl"} style={{position: "sticky"}}>
         <Flex
             mih={height}
             justify={"center"}

@@ -1,18 +1,12 @@
 import React from "react";
-import MainHeader from "../components/MainHeader";
-import {MantineProvider} from "@mantine/core";
 
-export default function Home() {
+export default function Home(props: {
+  onData: (str: string) => void;
+}) {
+
+  props.onData("Home");
   return (
-      <MantineProvider
-          theme={{
-            colorScheme: "dark",
-            primaryColor: "blue"
-          }}
-      >
-        <div className="App" style={{height:"100vh"}}>
-          <MainHeader currentPage={"Home"}/>
-        </div>
-      </MantineProvider>
+      <div className="App" style={{height: "100vh"}}>
+      </div>
   )
 }

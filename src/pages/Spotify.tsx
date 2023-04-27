@@ -1,18 +1,13 @@
 import React from "react";
 import MainHeader from "../components/MainHeader";
-import {MantineProvider} from "@mantine/core";
 
-export default function Spotify() {
+export default function Spotify(props: {
+  onData: (str: string) => void;
+}) {
+  props.onData("Spotify");
   return (
-      <MantineProvider
-          theme={{
-            colorScheme: "dark",
-            primaryColor: "green"
-          }}
-      >
         <div className="App" style={{height:"100vh"}}>
           <MainHeader currentPage={"Spotify"}/>
         </div>
-      </MantineProvider>
   )
 }
