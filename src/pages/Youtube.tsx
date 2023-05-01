@@ -41,8 +41,10 @@ interface Video {
 
 export default function Youtube(props: {
   onData: (str: string) => void;
+  onPrimaryColor: (str: string) => void;
 }) {
   props.onData("Youtube");
+    props.onPrimaryColor("red");
 
   const batchSize = 25;
   const theme = useMantineTheme();

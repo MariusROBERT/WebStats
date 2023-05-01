@@ -8,13 +8,13 @@ import MainHeader from "./components/MainHeader";
 
 function App() {
   const [currentPage, setCurrentPage] = React.useState("Home");
+  const [primaryColor, setPrimaryColor] = React.useState("blue");
 
   return (
       <MantineProvider
           theme={{
             colorScheme: "dark",
-            primaryColor: "red",
-            //  TODO: change primary color depending on the page
+            primaryColor: primaryColor,
             //  TODO: change background color to a slightly brighter gray (currently the same as the header)
           }}
           withCSSVariables
@@ -24,11 +24,11 @@ function App() {
         <BrowserRouter>
           <MainHeader currentPage={currentPage}/>
           <Routes>
-            <Route path={"/"} element={<Home onData={setCurrentPage}/>}>
+            <Route path={"/"} element={<Home onData={setCurrentPage} onPrimaryColor={setPrimaryColor}/>}>
             </Route>
-            <Route path={"/spotify"} element={<Spotify onData={setCurrentPage}/>}>
+            <Route path={"/spotify"} element={<Spotify onData={setCurrentPage} onPrimaryColor={setPrimaryColor}/>}>
             </Route>
-            <Route path={"/youtube"} element={<Youtube onData={setCurrentPage}/>}>
+            <Route path={"/youtube"} element={<Youtube onData={setCurrentPage} onPrimaryColor={setPrimaryColor}/>}>
             </Route>
           </Routes>
         </BrowserRouter>
