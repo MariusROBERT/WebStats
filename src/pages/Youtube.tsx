@@ -1,5 +1,5 @@
 import React, {useEffect} from "react";
-import {Center, Container, Flex, ScrollArea, Space, Table, Text, useMantineTheme} from "@mantine/core";
+import {Center, Container, createStyles, Flex, ScrollArea, Space, Table, Text, useMantineTheme} from "@mantine/core";
 import {Dropzone} from "@mantine/dropzone";
 import {IconFileSettings} from "@tabler/icons-react";
 
@@ -44,7 +44,7 @@ export default function Youtube(props: {
   onPrimaryColor: (str: string) => void;
 }) {
   props.onData("Youtube");
-    props.onPrimaryColor("red");
+  props.onPrimaryColor("red");
 
   const batchSize = 25;
   const theme = useMantineTheme();
@@ -58,6 +58,16 @@ export default function Youtube(props: {
   const [videosSeen, setVideosSeen] = React.useState(0);
   const [uniqueVideosSeen, setUniqueVideosSeen] = React.useState(0);
   const [channelsSeen, setChannelsSeen] = React.useState(0);
+
+  const useStyle = createStyles((theme) => ({
+    flexNumbers: {
+      [theme.fn.smallerThan("md")]: {
+        flexDirection: "column"
+      }
+    }
+  }));
+
+  const {classes} = useStyle();
 
   const handleDrop = (file: Blob) => {
     const reader = new FileReader();
@@ -134,7 +144,7 @@ export default function Youtube(props: {
               channelsSeen++;
               channels.push({
                 channel: video.channel,
-                link: video.link,
+                link: video.channelURL,
                 timeSeen: video.timeSeen,
                 timeUniqueSeen: 1,
                 firstSeen: video.firstSeen,
@@ -164,7 +174,7 @@ export default function Youtube(props: {
 
 
   return (
-      <Center style={{textAlign: "center"}}>
+      <Center style={{textAlign: "center"}} mb={"lg"}>
         <Container hidden={historyRaw.length !== 0}>
           <Dropzone loading={isLoading}
                     onDrop={(file) => {
@@ -172,7 +182,7 @@ export default function Youtube(props: {
                       handleDrop(file[0]);
                       // FIXME: fix isLoading
                     }}
-                    style={{width: 600}}
+                    style={{minWidth: 200, maxWidth: 600}}
                     radius={"lg"}
                     accept={["application/json"]}
                     maxFiles={1}
@@ -180,13 +190,13 @@ export default function Youtube(props: {
             <Dropzone.Idle>
               <IconFileSettings size="75" stroke={1.5} color={theme.colors.dark[0]}/>
             </Dropzone.Idle>
-            <Text mt={"sm"} size="xl" fw={500} inline color={theme.colors.dark[0]}>
+            <Text mt={"sm"} size="xl" fw={500} inline color={theme.colors.dark[0]} px={"md"}>
               Drag your watch-history.json file here or click to select it
             </Text>
           </Dropzone>
         </Container>
-        <Container hidden={historyRaw.length === 0}>
-          <Flex justify={"space-evenly"}>
+        <Container hidden={historyRaw.length === 0} maw="96vw">
+          <Flex justify={"space-evenly"} align={"center"} className={classes.flexNumbers}>
             <Flex direction={"row"}>
               <Text fz={"lg"}>Channels seen:&nbsp;</Text>
               <Text fz={"lg"} fw={800} color={theme.primaryColor}>{channelsSeen}</Text>
