@@ -30,6 +30,7 @@ Planned services
     - [ ] Add a loading bar when processing data
     - [ ] Add a way to export stats
 - [ ] Add more services
+- [ ] Improve landing page
 
 ## How to contribute
 
