@@ -25,7 +25,7 @@ Planned services
 
 - [ ] Add a theme button and improve the dark theme
 - [ ] Improve Youtube page
-    - [ ] Add tutorial for Youtube
+    - [x] Add tutorial for Youtube
     - [ ] Add more stats for Youtube
     - [ ] Add a loading bar when processing data
     - [ ] Add a way to export stats
