@@ -1,5 +1,16 @@
 import React, {useEffect} from "react";
-import {Center, Container, createStyles, Flex, ScrollArea, Space, Table, Text, useMantineTheme} from "@mantine/core";
+import {
+  Center,
+  Container,
+  createStyles,
+  Flex,
+  Progress,
+  ScrollArea,
+  Space,
+  Table,
+  Text,
+  useMantineTheme
+} from "@mantine/core";
 import {Dropzone} from "@mantine/dropzone";
 import {IconFileSettings} from "@tabler/icons-react";
 
@@ -58,6 +69,7 @@ export default function Youtube(props: {
   const [videosSeen, setVideosSeen] = React.useState(0);
   const [uniqueVideosSeen, setUniqueVideosSeen] = React.useState(0);
   const [channelsSeen, setChannelsSeen] = React.useState(0);
+  const [progress, setProgress] = React.useState(0);
 
   const useStyle = createStyles((theme) => ({
     flexNumbers: {
@@ -69,16 +81,21 @@ export default function Youtube(props: {
 
   const {classes} = useStyle();
 
-  const handleDrop = (file: Blob) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target === null) return;
-      const text = e.target.result;
-      if (typeof text === "string") {
-        setHistoryRaw(JSON.parse(text));
-      }
-    };
-    reader.readAsText(file);
+  async function handleDrop(file: Blob) {
+    setIsLoading(true);
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target === null) return;
+        const text = e.target.result;
+        if (typeof text === "string") {
+          setHistoryRaw(JSON.parse(text));
+          resolve(null);
+        }
+        else reject(null);
+      };
+      reader.readAsText(file);
+    });
   }
 
   useEffect(() => {
@@ -86,7 +103,9 @@ export default function Youtube(props: {
           let channels: Channel[] = [];
           let videos: Video[] = [];
           console.log(historyRaw.length);
-          for (const video of historyRaw) {
+          for (let i = 0; i < historyRaw.length; i++) {
+            setProgress(Math.round((i / historyRaw.length) * 50));
+            const video = historyRaw[i];
             const title = video.title.replace("Vous avez regardé ", "");
             if (title === "Vous avez regardé une vidéo qui a été supprimée" || !video.subtitles) continue;
             const titleURL = video.titleUrl;
@@ -124,7 +143,9 @@ export default function Youtube(props: {
           let videosSeen = 0;
           let uniqueVideosSeen = 0;
           let channelsSeen = 0;
-          for (const video of videos) {
+          for (let i = 0; i < videos.length; i++) {
+            setProgress(Math.round((i / historyRaw.length) * 50) + 50);
+            const video = videos[i];
             const indexChannel = channels.findIndex((item) => item.channel === video.channel);
             videosSeen += video.timeSeen;
             uniqueVideosSeen++;
@@ -179,7 +200,7 @@ export default function Youtube(props: {
           <Dropzone loading={isLoading}
                     onDrop={(file) => {
                       setIsLoading(true);
-                      handleDrop(file[0]);
+                      handleDrop(file[0]).then(() => setIsLoading(false));
                       // FIXME: fix isLoading
                     }}
                     style={{minWidth: 200, maxWidth: 600}}
@@ -194,6 +215,8 @@ export default function Youtube(props: {
               Drag your watch-history.json file here or click to select it
             </Text>
           </Dropzone>
+          <Space h={"lg"}/>
+          <Progress value={progress} animate={true}/>
         </Container>
         <Container hidden={historyRaw.length === 0} maw="96vw">
           <Flex justify={"space-evenly"} align={"center"} className={classes.flexNumbers}>
