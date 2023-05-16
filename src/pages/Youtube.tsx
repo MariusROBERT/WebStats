@@ -185,37 +185,39 @@ export default function Youtube(props: {
 
   return (
       <Center style={{textAlign: "center"}} mb={"lg"}>
-        <Flex hidden={historyRaw.length !== 0} direction={"column"} align={"center"}>
-          <Dropzone loading={isLoading}
-                    onDrop={(file) => {
-                      setIsLoading(true);
-                      handleDrop(file[0]);
-                      // FIXME: fix isLoading
-                    }}
-                    style={{minWidth: 200, maxWidth: 600}}
-                    radius={"lg"}
-                    accept={["application/json"]}
-                    maxFiles={1}
-                    mx={"sm"}
-          >
-            <Dropzone.Idle>
-              <IconFileSettings size="75" stroke={1.5} color={theme.colors.dark[0]}/>
-            </Dropzone.Idle>
-            <Text mt={"sm"} size="xl" fw={500} inline color={theme.colors.dark[0]} px={"md"}>
-              Drag your watch-history.json file here or click to select it
-            </Text>
-          </Dropzone>
-          <Paper shadow="md" p="lg" radius={"md"} withBorder m={"lg"}
-                 mx={"sm"} bg={theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[6]}>
-            <Text>
-              How to get the watch-history.json file ? <br/>
-              Go on <a href="https://takeout.google.com" target="_blank">Google Takeout</a>, select Youtube,
-              in Youtube select history and specify the format to JSON. <br/>
-              Wait for the file to be ready
-              (it should take a few minutes) and download it. <br/>
-            </Text>
-          </Paper>
-        </Flex>
+        <Container hidden={historyRaw.length !== 0}>
+          <Flex direction={"column"} align={"center"}>
+            <Dropzone loading={isLoading}
+                      onDrop={(file) => {
+                        setIsLoading(true);
+                        handleDrop(file[0]);
+                        // FIXME: fix isLoading
+                      }}
+                      style={{minWidth: 200, maxWidth: 600}}
+                      radius={"lg"}
+                      accept={["application/json"]}
+                      maxFiles={1}
+                      mx={"sm"}
+            >
+              <Dropzone.Idle>
+                <IconFileSettings size="75" stroke={1.5} color={theme.colors.dark[0]}/>
+              </Dropzone.Idle>
+              <Text mt={"sm"} size="xl" fw={500} inline color={theme.colors.dark[0]} px={"md"}>
+                Drag your watch-history.json file here or click to select it
+              </Text>
+            </Dropzone>
+            <Paper shadow="md" p="lg" radius={"md"} withBorder m={"lg"}
+                   mx={"sm"} bg={theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[6]}>
+              <Text>
+                How to get the watch-history.json file ? <br/>
+                Go on <a href="https://takeout.google.com" target="_blank">Google Takeout</a>, select Youtube,
+                in Youtube select history and specify the format to JSON. <br/>
+                Wait for the file to be ready
+                (it should take a few minutes) and download it. <br/>
+              </Text>
+            </Paper>
+          </Flex>
+        </Container>
         <Container hidden={historyRaw.length === 0} maw="96vw">
           <Flex justify={"space-evenly"} align={"center"} className={classes.flexNumbers}>
             <Flex direction={"row"}>
