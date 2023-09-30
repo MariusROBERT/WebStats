@@ -1,17 +1,18 @@
-import React, {useEffect} from "react";
+import React, {useEffect} from 'react';
 import {
   Center,
   Container,
   createStyles,
-  Flex, Paper,
+  Flex,
+  Paper,
   ScrollArea,
   Space,
   Table,
   Text,
   useMantineTheme
-} from "@mantine/core";
-import {Dropzone} from "@mantine/dropzone";
-import {IconFileSettings} from "@tabler/icons-react";
+} from '@mantine/core';
+import {Dropzone} from '@mantine/dropzone';
+import {IconFileSettings} from '@tabler/icons-react';
 
 interface HistoryJson {
   header: string,
@@ -53,8 +54,8 @@ export default function Youtube(props: {
   onData: (str: string) => void;
   onPrimaryColor: (str: string) => void;
 }) {
-  props.onData("Youtube");
-  props.onPrimaryColor("red");
+  props.onData('Youtube');
+  props.onPrimaryColor('red');
 
   const batchSize = 25;
   const theme = useMantineTheme();
@@ -71,8 +72,8 @@ export default function Youtube(props: {
 
   const useStyle = createStyles((theme) => ({
     flexNumbers: {
-      [theme.fn.smallerThan("md")]: {
-        flexDirection: "column"
+      [theme.fn.smallerThan('md')]: {
+        flexDirection: 'column'
       }
     }
   }));
@@ -84,225 +85,226 @@ export default function Youtube(props: {
     reader.onload = (e) => {
       if (e.target === null) return;
       const text = e.target.result;
-      if (typeof text === "string") {
+      if (typeof text === 'string') {
         setHistoryRaw(JSON.parse(text));
       }
     };
     reader.readAsText(file);
-  }
+  };
 
   useEffect(() => {
-        if (historyRaw.length !== 0) {
-          let channels: Channel[] = [];
-          let videos: Video[] = [];
-          console.log(historyRaw.length);
-          for (const video of historyRaw) {
-            const title = video.title.replace("Vous avez regardé ", "");
-            if (title === "Vous avez regardé une vidéo qui a été supprimée" || !video.subtitles) continue;
-            const titleURL = video.titleUrl;
-            const channel = video.subtitles[0].name;
-            const channelURL = video.subtitles[0].url;
-            const timeSeen = new Date(video.time);
+      if (historyRaw.length !== 0) {
+        let channels: Channel[] = [];
+        let videos: Video[] = [];
+        console.log(historyRaw.length);
+        for (const video of historyRaw) {
+          const title = video.title.replace('Vous avez regardé ', '');
+          if (title === 'Vous avez regardé une vidéo qui a été supprimée' || !video.subtitles) continue;
+          const titleURL = video.titleUrl;
+          const channel = video.subtitles[0].name;
+          const channelURL = video.subtitles[0].url;
+          const timeSeen = new Date(video.time);
 
-            const indexVideo = videos.findIndex((item) => item.title === title);
-            if (indexVideo !== -1) {
-              const item = videos[indexVideo];
-              item.timeSeen++;
-              if (item.lastSeen < timeSeen) {
-                item.lastSeen = timeSeen;
-                item.lastSeenShort = timeSeen.toLocaleDateString();
-              } else if (item.firstSeen > timeSeen) {
-                item.firstSeen = timeSeen;
-                item.firstSeenDisplay = timeSeen.toLocaleDateString();
-              }
-              videos[indexVideo] = item;
-            } else {
-              videos.push({
-                title: title,
-                link: titleURL,
-                channel: channel,
-                channelURL: channelURL,
-                timeSeen: 1,
-                firstSeen: timeSeen,
-                firstSeenDisplay: timeSeen.toLocaleDateString(),
-                lastSeen: timeSeen,
-                lastSeenShort: timeSeen.toLocaleDateString(),
-              })
+          const indexVideo = videos.findIndex((item) => item.title === title);
+          if (indexVideo !== -1) {
+            const item = videos[indexVideo];
+            item.timeSeen++;
+            if (item.lastSeen < timeSeen) {
+              item.lastSeen = timeSeen;
+              item.lastSeenShort = timeSeen.toLocaleDateString();
+            } else if (item.firstSeen > timeSeen) {
+              item.firstSeen = timeSeen;
+              item.firstSeenDisplay = timeSeen.toLocaleDateString();
             }
+            videos[indexVideo] = item;
+          } else {
+            videos.push({
+              title: title,
+              link: titleURL,
+              channel: channel,
+              channelURL: channelURL,
+              timeSeen: 1,
+              firstSeen: timeSeen,
+              firstSeenDisplay: timeSeen.toLocaleDateString(),
+              lastSeen: timeSeen,
+              lastSeenShort: timeSeen.toLocaleDateString(),
+            });
           }
-
-          let videosSeen = 0;
-          let uniqueVideosSeen = 0;
-          let channelsSeen = 0;
-          for (const video of videos) {
-            const indexChannel = channels.findIndex((item) => item.channel === video.channel);
-            videosSeen += video.timeSeen;
-            uniqueVideosSeen++;
-            if (indexChannel !== -1) {
-              const item = channels[indexChannel];
-              item.timeSeen += video.timeSeen;
-              item.timeUniqueSeen++;
-              if (item.lastSeen < video.lastSeen) {
-                item.lastSeen = video.lastSeen;
-                item.lastSeenShort = video.lastSeen.toLocaleDateString();
-              } else if (item.firstSeen > video.firstSeen) {
-                item.firstSeen = video.firstSeen;
-                item.firstSeenDisplay = video.firstSeen.toLocaleDateString();
-              }
-              channels[indexChannel] = item;
-            } else {
-              channelsSeen++;
-              channels.push({
-                channel: video.channel,
-                link: video.channelURL,
-                timeSeen: video.timeSeen,
-                timeUniqueSeen: 1,
-                firstSeen: video.firstSeen,
-                firstSeenDisplay: video.firstSeen.toLocaleDateString(),
-                lastSeen: video.lastSeen,
-                lastSeenShort: video.lastSeen.toLocaleDateString(),
-              })
-            }
-          }
-          setHistoryChannel(channels.sort((a: Channel, b: Channel) => b.timeSeen - a.timeSeen));
-          setHistoryVideos(videos.sort((a: Video, b: Video) => b.timeSeen - a.timeSeen));
-          setVideosSeen(videosSeen);
-          setUniqueVideosSeen(uniqueVideosSeen);
-          setChannelsSeen(channelsSeen);
         }
-        setIsLoading(false);
-      }, [historyRaw]
-  )
+
+        let videosSeen = 0;
+        let uniqueVideosSeen = 0;
+        let channelsSeen = 0;
+        for (const video of videos) {
+          const indexChannel = channels.findIndex((item) => item.channel === video.channel);
+          videosSeen += video.timeSeen;
+          uniqueVideosSeen++;
+          if (indexChannel !== -1) {
+            const item = channels[indexChannel];
+            item.timeSeen += video.timeSeen;
+            item.timeUniqueSeen++;
+            if (item.lastSeen < video.lastSeen) {
+              item.lastSeen = video.lastSeen;
+              item.lastSeenShort = video.lastSeen.toLocaleDateString();
+            } else if (item.firstSeen > video.firstSeen) {
+              item.firstSeen = video.firstSeen;
+              item.firstSeenDisplay = video.firstSeen.toLocaleDateString();
+            }
+            channels[indexChannel] = item;
+          } else {
+            channelsSeen++;
+            channels.push({
+              channel: video.channel,
+              link: video.channelURL,
+              timeSeen: video.timeSeen,
+              timeUniqueSeen: 1,
+              firstSeen: video.firstSeen,
+              firstSeenDisplay: video.firstSeen.toLocaleDateString(),
+              lastSeen: video.lastSeen,
+              lastSeenShort: video.lastSeen.toLocaleDateString(),
+            });
+          }
+        }
+        setHistoryChannel(channels.sort((a: Channel, b: Channel) => b.timeSeen - a.timeSeen));
+        setHistoryVideos(videos.sort((a: Video, b: Video) => b.timeSeen - a.timeSeen));
+        setVideosSeen(videosSeen);
+        setUniqueVideosSeen(uniqueVideosSeen);
+        setChannelsSeen(channelsSeen);
+      }
+      setIsLoading(false);
+    }, [historyRaw]
+  );
 
   useEffect(() => {
     setHistoryChannelDisplay(historyChannel.slice(0, batchSize));
-  }, [historyChannel])
+  }, [historyChannel]);
 
   useEffect(() => {
     setHistoryVideosDisplay(historyVideos.slice(0, batchSize));
-  }, [historyVideos])
+  }, [historyVideos]);
 
 
   return (
-      <Center style={{textAlign: "center"}} mb={"lg"}>
-        <Container hidden={historyRaw.length !== 0}>
-          <Flex direction={"column"} align={"center"}>
-            <Dropzone loading={isLoading}
-                      onDrop={(file) => {
-                        setIsLoading(true);
-                        handleDrop(file[0]);
-                        // FIXME: fix isLoading
-                      }}
-                      style={{minWidth: 200, maxWidth: 600}}
-                      radius={"lg"}
-                      accept={["application/json"]}
-                      maxFiles={1}
-                      mx={"sm"}
-            >
-              <Dropzone.Idle>
-                <IconFileSettings size="75" stroke={1.5} color={theme.colors.dark[0]}/>
-              </Dropzone.Idle>
-              <Text mt={"sm"} size="xl" fw={500} inline color={theme.colors.dark[0]} px={"md"}>
-                Drag your watch-history.json file here or click to select it
-              </Text>
-            </Dropzone>
-            <Paper shadow="md" p="lg" radius={"md"} withBorder m={"lg"}
-                   mx={"sm"} bg={theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[6]}>
-              <Text>
-                How to get the watch-history.json file ? <br/>
-                Go on <a href="https://takeout.google.com" target="_blank">Google Takeout</a>, select Youtube,
-                in Youtube select history and specify the format to JSON. <br/>
-                Wait for the file to be ready
-                (it should take a few minutes) and download it. <br/>
-              </Text>
-            </Paper>
+    <Center style={{textAlign: 'center'}} mb={'lg'}>
+      <Container hidden={historyRaw.length !== 0}>
+        <Flex direction={'column'} align={'center'}>
+          <Dropzone loading={isLoading}
+                    onDrop={(file) => {
+                      setIsLoading(true);
+                      handleDrop(file[0]);
+                      // FIXME: fix isLoading
+                    }}
+                    style={{minWidth: 200, maxWidth: 600}}
+                    radius={'lg'}
+                    accept={['application/json']}
+                    maxFiles={1}
+                    mx={'sm'}
+          >
+            <Dropzone.Idle>
+              <IconFileSettings size="75" stroke={1.5} color={theme.colors.dark[0]}/>
+            </Dropzone.Idle>
+            <Text mt={'sm'} size="xl" fw={500} inline color={theme.colors.dark[0]} px={'md'}>
+              Drag your watch-history.json file here or click to select it
+            </Text>
+          </Dropzone>
+          <Paper shadow="md" p="lg" radius={'md'} withBorder m={'lg'}
+                 mx={'sm'} bg={theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[6]}>
+            <Text>
+              How to get the watch-history.json file ? <br/>
+              Go on <a href="https://takeout.google.com" target="_blank" rel="noreferrer">Google Takeout</a>, select
+              Youtube,
+              in Youtube select history and specify the format to JSON. <br/>
+              Wait for the file to be ready
+              (it should take a few minutes) and download it. <br/>
+            </Text>
+          </Paper>
+        </Flex>
+      </Container>
+      <Container hidden={historyRaw.length === 0} maw="96vw">
+        <Flex justify={'space-evenly'} align={'center'} className={classes.flexNumbers}>
+          <Flex direction={'row'}>
+            <Text fz={'lg'}>Channels seen:&nbsp;</Text>
+            <Text fz={'lg'} fw={800} color={theme.primaryColor}>{channelsSeen}</Text>
           </Flex>
-        </Container>
-        <Container hidden={historyRaw.length === 0} maw="96vw">
-          <Flex justify={"space-evenly"} align={"center"} className={classes.flexNumbers}>
-            <Flex direction={"row"}>
-              <Text fz={"lg"}>Channels seen:&nbsp;</Text>
-              <Text fz={"lg"} fw={800} color={theme.primaryColor}>{channelsSeen}</Text>
-            </Flex>
-            <Space w={"lg"}/>
-            <Flex direction={"row"}>
-              <Text fz={"lg"}>Videos seen:&nbsp;</Text>
-              <Text fz={"lg"} fw={800} color={theme.primaryColor}>{videosSeen}</Text>
-            </Flex>
-            <Space w={"lg"}/>
-            <Flex direction={"row"}>
-              <Text fz={"lg"}> Unique videos seen:&nbsp;</Text>
-              <Text fz={"lg"} fw={800} color={theme.primaryColor}>{uniqueVideosSeen}</Text>
-            </Flex>
+          <Space w={'lg'}/>
+          <Flex direction={'row'}>
+            <Text fz={'lg'}>Videos seen:&nbsp;</Text>
+            <Text fz={'lg'} fw={800} color={theme.primaryColor}>{videosSeen}</Text>
           </Flex>
-          <Space h={"lg"}/>
-          <ScrollArea h={500}>
-            <Table highlightOnHover striped withBorder horizontalSpacing={"md"}>
-              <thead>
-              <tr>
-                {/*TODO: fix thead when scrolling*/}
-                {/*TODO: make header element clickable to sort the table */}
-                {["Channel", "Videos seen", "Unique videos seen", "First seen", "Last seen"].map((header) => {
-                  return <th style={{textAlign: "center"}}>{header}</th>
-                })}
-              </tr>
-              </thead>
-              <tbody>
-              {historyChannelDisplay.map((row) => {
-                return (
-                    <tr>
-                      <td><a style={{
-                        color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[0],
-                        textDecoration: "none"
-                      }} href={row.link}>
-                        {row.channel}
-                      </a></td>
-                      <td>{row.timeSeen}</td>
-                      <td>{row.timeUniqueSeen}</td>
-                      <td>{row.firstSeenDisplay}</td>
-                      <td>{row.lastSeenShort}</td>
-                    </tr>
-                )
+          <Space w={'lg'}/>
+          <Flex direction={'row'}>
+            <Text fz={'lg'}> Unique videos seen:&nbsp;</Text>
+            <Text fz={'lg'} fw={800} color={theme.primaryColor}>{uniqueVideosSeen}</Text>
+          </Flex>
+        </Flex>
+        <Space h={'lg'}/>
+        <ScrollArea h={500}>
+          <Table highlightOnHover striped withBorder horizontalSpacing={'md'}>
+            <thead>
+            <tr>
+              {/*TODO: fix thead when scrolling*/}
+              {/*TODO: make header element clickable to sort the table */}
+              {['Channel', 'Videos seen', 'Unique videos seen', 'First seen', 'Last seen'].map((header) => {
+                return <th style={{textAlign: 'center'}}>{header}</th>;
               })}
-              </tbody>
-            </Table>
-          </ScrollArea>
-          <Space h={"lg"}/>
-          <ScrollArea h={500}>
-            <Table highlightOnHover striped withBorder horizontalSpacing={"md"}>
-              <thead>
-              <tr>
-                {["Title", "Channel", "Time seen", "First seen", "Last seen"].map((header) => {
-                  return <th style={{textAlign: "center"}}>{header}</th>
-                })}
-              </tr>
-              </thead>
-              <tbody>
-              {historyVideosDisplay.map((row) => {
-                return (
-                    <tr>
-                      <td><a href={row.link} style={{
-                        color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[0],
-                        textDecoration: "none"
-                      }}>
-                        {row.title.length > 53 ? row.title.substring(0, 50) + "..." : row.title}
-                      </a></td>
-                      <td><a href={row.channelURL} style={{
-                        color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[0],
-                        textDecoration: "none"
-                      }}>
-                        {row.channel.length > 30 ? row.channel.substring(0, 10) + "..." : row.channel}
-                      </a></td>
-                      <td>{row.timeSeen}</td>
-                      <td>{row.firstSeenDisplay}</td>
-                      <td>{row.lastSeenShort}</td>
-                    </tr>
-                )
+            </tr>
+            </thead>
+            <tbody>
+            {historyChannelDisplay.map((row) => {
+              return (
+                <tr>
+                  <td><a style={{
+                    color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[0],
+                    textDecoration: 'none'
+                  }} href={row.link}>
+                    {row.channel}
+                  </a></td>
+                  <td>{row.timeSeen}</td>
+                  <td>{row.timeUniqueSeen}</td>
+                  <td>{row.firstSeenDisplay}</td>
+                  <td>{row.lastSeenShort}</td>
+                </tr>
+              );
+            })}
+            </tbody>
+          </Table>
+        </ScrollArea>
+        <Space h={'lg'}/>
+        <ScrollArea h={500}>
+          <Table highlightOnHover striped withBorder horizontalSpacing={'md'}>
+            <thead>
+            <tr>
+              {['Title', 'Channel', 'Time seen', 'First seen', 'Last seen'].map((header) => {
+                return <th style={{textAlign: 'center'}}>{header}</th>;
               })}
-              </tbody>
-            </Table>
-          </ScrollArea>
-        </Container>
-      </Center>
-  )
+            </tr>
+            </thead>
+            <tbody>
+            {historyVideosDisplay.map((row) => {
+              return (
+                <tr>
+                  <td><a href={row.link} style={{
+                    color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[0],
+                    textDecoration: 'none'
+                  }}>
+                    {row.title.length > 53 ? row.title.substring(0, 50) + '...' : row.title}
+                  </a></td>
+                  <td><a href={row.channelURL} style={{
+                    color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[0],
+                    textDecoration: 'none'
+                  }}>
+                    {row.channel.length > 30 ? row.channel.substring(0, 10) + '...' : row.channel}
+                  </a></td>
+                  <td>{row.timeSeen}</td>
+                  <td>{row.firstSeenDisplay}</td>
+                  <td>{row.lastSeenShort}</td>
+                </tr>
+              );
+            })}
+            </tbody>
+          </Table>
+        </ScrollArea>
+      </Container>
+    </Center>
+  );
 }
