@@ -37,7 +37,7 @@ export default function MainHeader(props: any) {
   const menus = [
     {title: "Home", path: "/", icon: <IconHome2 size={25}/>, working: true},
     {title: "Youtube", path: "/youtube", icon: <IconBrandYoutube size={25}/>, working: true},
-    {title: "Spotify", path: "/spotify", icon: <IconBrandSpotify size={25}/>, working: false},
+    {title: "Spotify", path: "/spotify", icon: <IconBrandSpotify size={25}/>, working: true},
   ]
   const [opened, {toggle, close}] = useDisclosure(false);
   const {classes} = useStyle();
