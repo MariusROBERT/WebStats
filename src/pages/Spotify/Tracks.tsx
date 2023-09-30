@@ -1,19 +1,31 @@
 import React from 'react';
 import {clearToken} from './utils';
 import {ActionIcon, Center, Flex, SegmentedControl} from '@mantine/core';
-import {AlbumDisplay, AlbumInterface} from '../../components/Spotify/AlbumDisplay';
+import {AlbumDisplay} from '../../components/Spotify/AlbumDisplay';
 import {IconRefresh} from '@tabler/icons-react';
 
+interface TrackInterface {
+  album: {
+    url: string,
+    images: {
+      height: number,
+      url: string,
+      width: number
+    }[],
+  },
+  artists: {
+    url: string,
+    name: string,
+  }[],
+  name: string,
+  duration_ms: number,
+  url: string,
+}
 
 export function Tracks() {
   const token = localStorage.getItem('spotifyJwt');
   const [timeRange, setTimeRange] = React.useState<string>('0');
-  const [albums, setAlbums] = React.useState<AlbumInterface[]>(
-    Array.from({length: 50}, () => (
-      {name: 'album', artists: [{name: 'artist', url: '/'}], albumImg: 'https://via.placeholder.com/150', id: 'id', albumUrl: '#'}
-    ))
-  );
-
+  const [tracks, setTracks] = React.useState<TrackInterface[]>([]);
 
   if (!token) {
     clearToken();
@@ -24,33 +36,43 @@ export function Tracks() {
     {label: '6 month', value: '1'},
     {label: 'lifetime', value: '2'}];
 
-  function getTopTracks() {
-    setAlbums(
-      [{
-        name: 'Mac and Devin Go To High School (Music From and Inspired By The Movie)',
-        artists: [{name: 'Various Artists', url: 'https://open.spotify.com/artist/0LyfQWJT6nXafLPZqxe9Of'}],
-        albumImg: 'https://i.scdn.co/image/ab67616d00001e02c303b2aec2d884a775045391',
-        albumUrl: 'https://api.spotify.com/v1/albums/0lRlbYQMtETkabg9fNSqAl',
-        trackUri: 'spotify:album:0lRlbYQMtETkabg9fNSqAl',
-        id: '0lRlbYQMtETkabg9fNSqAl'
-      }]
-    );
-    /*fetch(`http://localhost:3002/spotify/tracks/${timeRange}`, {
+  async function getTopTracks() {
+    const response = (await fetch(`http://localhost:3002/spotify/tracks/${timeRange}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       }
-    }).then((response) => {
-      console.log(response);
-    });*/
+    }).then((r) => r.json()));
+    if (response.error) {
+      console.warn(response.error);
+      return;
+    }
+    setTracks(response['items'].map((track: any) => {
+      return {
+        album: {
+          url: track.album.external_urls.spotify,
+          images: track.album.images,
+        },
+        artists: track.artists.map((artist: any) => {
+          return {
+            url: artist.external_urls.spotify,
+            name: artist.name,
+          };
+        }),
+        name: track.name,
+        duration_ms: track.duration_ms,
+        url: track.external_urls.spotify,
+      };
+    }));
+    console.log(tracks);
   }
 
   return (
     <Center>
       <Flex align={'center'} justify={'space-evenly'} direction={'column'} w={'95%'}>
         <Flex align={'center'}>
-          <h1>Top Albums</h1>
+          <h1>Top Tracks</h1>
           <ActionIcon m={'md'} onClick={getTopTracks}>
             <IconRefresh size={'xl'}/>
           </ActionIcon>
@@ -60,14 +82,15 @@ export function Tracks() {
         </div>
         <Center>
           <Flex wrap={'wrap'} align={'stretch'} w={'95%'} style={{border: 'solid 0px red'}}>
-            {albums && albums.map((album, index) => (
+            {tracks && tracks.map((track, index) => (
               <AlbumDisplay
                 index={index + 1}
-                name={album.name}
-                id={album.id}
-                artists={album.artists}
-                albumImg={album.albumImg}
-                albumUrl={album.albumUrl}
+                name={track.name}
+                artists={track.artists}
+                albumImg={track.album.images[0].url}
+                albumUrl={track.album.url}
+                url={track.url}
+                duration={track.duration_ms}
               />
             ))
             }
