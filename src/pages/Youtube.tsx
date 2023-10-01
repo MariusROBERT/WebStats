@@ -50,13 +50,7 @@ interface Video {
   lastSeenShort: string;
 }
 
-export default function Youtube(props: {
-  onData: (str: string) => void;
-  onPrimaryColor: (str: string) => void;
-}) {
-  props.onData('Youtube');
-  props.onPrimaryColor('red');
-
+export default function Youtube() {
   const batchSize = 25;
   const theme = useMantineTheme();
 

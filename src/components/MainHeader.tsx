@@ -1,6 +1,8 @@
 import {Burger, Button, createStyles, Flex, Header, rem, Tooltip, Transition} from "@mantine/core";
 import {IconBrandSpotify, IconBrandYoutube, IconHome2} from "@tabler/icons-react";
 import {useDisclosure} from "@mantine/hooks";
+import {useLocation} from 'react-router-dom';
+import React from 'react';
 
 const HEADER_HEIGHT = rem(100);
 
@@ -33,14 +35,33 @@ const useStyle = createStyles((theme) => ({
   }
 }));
 
-export default function MainHeader(props: any) {
+interface Props {
+  onPrimaryColor: (color: string) => void;
+}
+
+export default function MainHeader(props: Props) {
   const menus = [
     {title: "Home", path: "/", icon: <IconHome2 size={25}/>, working: true},
     {title: "Youtube", path: "/youtube", icon: <IconBrandYoutube size={25}/>, working: true},
     {title: "Spotify", path: "/spotify", icon: <IconBrandSpotify size={25}/>, working: true},
   ]
   const [opened, {toggle, close}] = useDisclosure(false);
+  const [currentPage, setCurrentPage] = React.useState("Home");
   const {classes} = useStyle();
+
+  const location = useLocation();
+  React.useEffect(() => {
+    if (location.pathname.includes("youtube")) {
+      props.onPrimaryColor("red");
+      setCurrentPage("Youtube");
+    } else if (location.pathname.includes("spotify")) {
+      props.onPrimaryColor("green");
+      setCurrentPage("Spotify");
+    } else {
+      props.onPrimaryColor("blue");
+      setCurrentPage("Home");
+    }
+  }, [location.pathname, props]);
 
   const computerButtons = menus.map((menu) => (
       <Tooltip
@@ -55,7 +76,7 @@ export default function MainHeader(props: any) {
             href={menu.working ? menu.path : "#"}
             size={"md"}
             key={menu.title}
-            variant={menu.working ? (props.currentPage === menu.title ? "filled" : "outline") : "light"}
+            variant={menu.working ? (currentPage === menu.title ? "filled" : "outline") : "light"}
         >
           {menu.title}
         </Button>
@@ -77,7 +98,7 @@ export default function MainHeader(props: any) {
             href={menu.working ? menu.path : "#"}
             size={"md"}
             key={menu.title}
-            variant={menu.working ? (props.currentPage === menu.title ? "filled" : "outline") : "light"}
+            variant={menu.working ? (currentPage === menu.title ? "filled" : "outline") : "light"}
             onClick={close}
         >
           {menu.title}
@@ -86,18 +107,18 @@ export default function MainHeader(props: any) {
   ));
 
   const currentPageButton = () => {
-    const currentPage = menus.find((menu) => menu.title === props.currentPage);
-    if (currentPage) {
+    const here = menus.find((menu) => menu.title === currentPage);
+    if (here) {
       return (
           <Button
-              leftIcon={currentPage.icon}
+              leftIcon={here.icon}
               component={"a"}
-              href={currentPage.working ? currentPage.path : "#"}
+              href={here.working ? here.path : "#"}
               size={"md"}
-              key={currentPage.title}
+              key={here.title}
               variant={"filled"}
           >
-            {currentPage.title}
+            {here.title}
           </Button>
       )
     } else {

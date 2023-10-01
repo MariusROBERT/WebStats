@@ -1,13 +1,7 @@
 import React from "react";
 import {Center, Paper, Text} from "@mantine/core";
 
-export default function Home(props: {
-  onData: (str: string) => void;
-  onPrimaryColor: (str: string) => void;
-}) {
-
-  props.onData("Home");
-  props.onPrimaryColor("blue");
+export default function Home() {
   return (
       <Center>
         <Paper p={"sm"}>

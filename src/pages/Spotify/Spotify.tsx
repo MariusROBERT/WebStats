@@ -3,13 +3,7 @@ import React from 'react';
 import SpotifyLogo from '../../assets/Spotify_Logo_RGB_White.png';
 import {IconDisc, IconMicrophone2, IconMusic} from '@tabler/icons-react';
 
-export default function Spotify(props: {
-  onData: (str: string) => void;
-  onPrimaryColor: (str: string) => void;
-}) {
-  props.onData('Spotify');
-  props.onPrimaryColor('green');
-
+export default function Spotify() {
   const newToken = new URLSearchParams(window.location.search).get('jwt');
   if (newToken) {
     localStorage.setItem('spotifyJwt', newToken);

@@ -8,7 +8,6 @@ import MainHeader from './components/MainHeader';
 import {Tracks} from './pages/Spotify/Tracks';
 
 function App() {
-  const [currentPage, setCurrentPage] = React.useState('Home');
   const [primaryColor, setPrimaryColor] = React.useState('blue');
 
   return (
@@ -26,14 +25,14 @@ function App() {
       withNormalizeCSS
     >
       <BrowserRouter>
-        <MainHeader currentPage={currentPage}/> {/*test*/}
+        <MainHeader onPrimaryColor={setPrimaryColor}/> {/*test*/}
         <Routes>
-          <Route path={'/'} element={<Home onData={setCurrentPage} onPrimaryColor={setPrimaryColor}/>}/>
+          <Route path={'/'} element={<Home/>}/>
           <Route path={'/spotify'}>
-            <Route path={''} element={<Spotify onData={setCurrentPage} onPrimaryColor={setPrimaryColor}/>}/>
+            <Route path={''} element={<Spotify/>}/>
             <Route path={'tracks'} element={<Tracks/>}/>
           </Route>
-          <Route path={'/youtube'} element={<Youtube onData={setCurrentPage} onPrimaryColor={setPrimaryColor}/>}/>
+          <Route path={'/youtube'} element={<Youtube/>}/>
         </Routes>
       </BrowserRouter>
     </MantineProvider>
