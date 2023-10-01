@@ -69,13 +69,13 @@ export default function MainHeader(props: Props) {
           position="bottom"
           withArrow
           disabled={menu.working}
+          key={menu.title}
       >
         <Button
             leftIcon={menu.icon}
             component={"a"}
             href={menu.working ? menu.path : "#"}
             size={"md"}
-            key={menu.title}
             variant={menu.working ? (currentPage === menu.title ? "filled" : "outline") : "light"}
         >
           {menu.title}
