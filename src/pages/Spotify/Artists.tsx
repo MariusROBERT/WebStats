@@ -1,16 +1,14 @@
 import React, {useEffect} from 'react';
 import {clearToken} from './utils';
 import {ActionIcon, Center, Flex, Notification, SegmentedControl, Transition} from '@mantine/core';
-import {AlbumDisplay} from '../../components/Spotify/AlbumDisplay';
 import {IconRefresh, IconX} from '@tabler/icons-react';
-import {sizeRanges, timeRanges, TotalTracksInterface} from '../../components/Spotify/utils';
+import {sizeRanges, timeRanges, TotalArtistInterface} from '../../components/Spotify/utils';
+import {ArtistDisplay} from '../../components/Spotify/ArtistDisplay';
 
-
-
-export function Tracks() {
+export function Artists() {
   const token = localStorage.getItem('spotifyJwt');
   const [timeRange, setTimeRange] = React.useState<string>('short_term');
-  const [tracks, setTracks] = React.useState<TotalTracksInterface>({short_term: [], medium_term: [], long_term: []});
+  const [artists, setArtists] = React.useState<TotalArtistInterface>({short_term: [], medium_term: [], long_term: []});
   const [size, setSize] = React.useState<string>('200');
   const [error, setError] = React.useState<string>('');
 
@@ -19,7 +17,7 @@ export function Tracks() {
   }
 
   useEffect(() => {
-    getTopTracks().then();
+    getTopArtists().then();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRange]);
 
@@ -31,12 +29,12 @@ export function Tracks() {
     }
   }, [error]);
 
-  async function getTopTracks(force: boolean = false) {
+  async function getTopArtists(force: boolean = false) {
     // @ts-ignore-next-line
-    if (!force && tracks[timeRange].length > 0)
+    if (!force && artists[timeRange].length > 0)
       return;
 
-    const response = (await fetch(`http://localhost:3002/spotify/tracks/${timeRange}`, {
+    const response = (await fetch(`http://localhost:3002/spotify/artists/${timeRange}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -53,38 +51,27 @@ export function Tracks() {
       return;
     }
 
-    setTracks((prevState) => {
+    setArtists((prevState) => {
       return {
         ...prevState,
         [timeRange]:
-          response['items'].map((track: any) => {
+          response['items'].map((artist: any) => {
             return {
-              album: {
-                url: track.album.external_urls.spotify,
-                images: track.album.images,
-              },
-              artists: track.artists.map((artist: any) => {
-                return {
-                  url: artist.external_urls.spotify,
-                  name: artist.name,
-                };
-              }),
-              name: track.name,
-              duration_ms: track.duration_ms,
-              url: track.external_urls.spotify,
+              name: artist.name,
+              images: artist.images,
+              url: artist.external_urls.spotify,
             };
           })
       };
     });
   }
 
-  // @ts-ignore
   return (
     <Center>
       <Flex align={'center'} justify={'space-evenly'} direction={'column'} w={'95%'}>
         <Flex align={'center'}>
-          <h1>Top Tracks</h1>
-          <ActionIcon m={'md'} onClick={() => getTopTracks(true)}>
+          <h1>Top Artists</h1>
+          <ActionIcon m={'md'} onClick={() => getTopArtists(true)}>
             <IconRefresh size={'xl'}/>
           </ActionIcon>
         </Flex>
@@ -92,19 +79,11 @@ export function Tracks() {
           <SegmentedControl fullWidth value={timeRange} onChange={setTimeRange} data={timeRanges} size={'md'}/>
         </div>
         <Center>
-          <Flex wrap={'wrap'} align={'stretch'} mr={20} ml={30} justify={'center'} >
+          <Flex wrap={'wrap'} align={'stretch'} mx={20} justify={'center'}>
             {/*@ts-ignore TS7053*/}
-            {tracks[timeRange] && tracks[timeRange].map((track, index) => (
-              <AlbumDisplay
-                index={index + 1}
-                name={track.name}
-                artists={track.artists}
-                albumImg={track.album.images[1].url}
-                albumUrl={track.album.url}
-                url={track.url}
-                duration={track.duration_ms}
-                width={parseInt(size)}
-              />
+            {artists[timeRange] && artists[timeRange].map((artist, index) => (
+              <ArtistDisplay name={artist.name} img={artist.images[1].url} url={artist.url} index={index}
+                             width={parseInt(size)}/>
             ))
             }
           </Flex>

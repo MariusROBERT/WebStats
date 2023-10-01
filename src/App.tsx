@@ -6,6 +6,7 @@ import Youtube from './pages/Youtube';
 import {MantineProvider} from '@mantine/core';
 import MainHeader from './components/MainHeader';
 import {Tracks} from './pages/Spotify/Tracks';
+import {Artists} from './pages/Spotify/Artists';
 
 function App() {
   const [primaryColor, setPrimaryColor] = React.useState('blue');
@@ -31,6 +32,7 @@ function App() {
           <Route path={'/spotify'}>
             <Route path={''} element={<Spotify/>}/>
             <Route path={'tracks'} element={<Tracks/>}/>
+            <Route path={'artists'} element={<Artists/>}/>
           </Route>
           <Route path={'/youtube'} element={<Youtube/>}/>
         </Routes>
