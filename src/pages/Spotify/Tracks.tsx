@@ -1,8 +1,8 @@
 import React, {useEffect} from 'react';
 import {clearToken} from './utils';
-import {ActionIcon, Center, Flex, SegmentedControl} from '@mantine/core';
+import {ActionIcon, Center, Flex, Notification, SegmentedControl, Transition} from '@mantine/core';
 import {AlbumDisplay} from '../../components/Spotify/AlbumDisplay';
-import {IconPhoto, IconRefresh} from '@tabler/icons-react';
+import {IconPhoto, IconRefresh, IconX} from '@tabler/icons-react';
 
 interface TrackInterface {
   album: {
@@ -33,6 +33,7 @@ export function Tracks() {
   const [timeRange, setTimeRange] = React.useState<string>('short_term');
   const [tracks, setTracks] = React.useState<TotalTracksInterface>({short_term: [], medium_term: [], long_term: []});
   const [size, setSize] = React.useState<string>('200');
+  const [error, setError] = React.useState<string>('');
 
   if (!token) {
     clearToken();
@@ -54,6 +55,14 @@ export function Tracks() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRange]);
 
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+    }
+  }, [error]);
+
   async function getTopTracks(force: boolean = false) {
     // @ts-ignore-next-line
     if (!force && tracks[timeRange].length > 0)
@@ -72,6 +81,7 @@ export function Tracks() {
       if (response.message === 'Unauthorized') {
         clearToken();
       }
+      setError(response.message);
       return;
     }
 
@@ -141,6 +151,22 @@ export function Tracks() {
                         onChange={setSize}
                         data={sizeRanges}
       />
+      <Transition mounted={!!error} transition={'slide-left'}>
+        {(style) =>
+          <Notification
+            pos={'fixed'}
+            top={110}
+            right={10}
+            withBorder
+            withCloseButton={false}
+            icon={<IconX/>}
+            color={'red'}
+            style={style}
+          >
+            {error}
+          </Notification>
+        }
+      </Transition>
     </Center>
   );
 }
