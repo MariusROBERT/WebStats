@@ -1,4 +1,4 @@
 export function clearToken() {
-  localStorage.removeItem('jwtToken');
+  localStorage.removeItem('spotifyJwt');
   window.location.href = '/spotify';
 }
