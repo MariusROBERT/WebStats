@@ -1,11 +1,10 @@
 import React, {useEffect} from 'react';
 import {clearToken} from './utils';
-import {ActionIcon, Center, Flex, Notification, SegmentedControl, Transition} from '@mantine/core';
+import {ActionIcon, Center, Flex, Notification, SegmentedControl, Transition, Text} from '@mantine/core';
 import {AlbumDisplay} from '../../components/Spotify/AlbumDisplay';
 import {IconRefresh, IconX} from '@tabler/icons-react';
 import {sizeRanges, timeRanges, TotalTracksInterface} from '../../components/Spotify/utils';
-
-
+import {MenuChoice} from '../../components/Spotify/MenuChoice';
 
 export function Tracks() {
   const token = localStorage.getItem('spotifyJwt');
@@ -83,7 +82,8 @@ export function Tracks() {
     <Center>
       <Flex align={'center'} justify={'space-evenly'} direction={'column'} w={'95%'}>
         <Flex align={'center'}>
-          <h1>Top Tracks</h1>
+          <Text size={35} mr={'1ch'}>Top</Text>
+          <MenuChoice currentPage={'Tracks'}/>
           <ActionIcon m={'md'} onClick={() => getTopTracks(true)}>
             <IconRefresh size={'xl'}/>
           </ActionIcon>

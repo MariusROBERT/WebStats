@@ -1,9 +1,10 @@
 import React, {useEffect} from 'react';
 import {clearToken} from './utils';
-import {ActionIcon, Center, Flex, Notification, SegmentedControl, Transition} from '@mantine/core';
+import {ActionIcon, Center, Flex, Notification, SegmentedControl, Transition, Text} from '@mantine/core';
 import {IconRefresh, IconX} from '@tabler/icons-react';
 import {sizeRanges, timeRanges, TotalArtistInterface} from '../../components/Spotify/utils';
 import {ArtistDisplay} from '../../components/Spotify/ArtistDisplay';
+import {MenuChoice} from '../../components/Spotify/MenuChoice';
 
 export function Artists() {
   const token = localStorage.getItem('spotifyJwt');
@@ -51,6 +52,8 @@ export function Artists() {
       return;
     }
 
+    console.log(response['items']);
+
     setArtists((prevState) => {
       return {
         ...prevState,
@@ -70,7 +73,8 @@ export function Artists() {
     <Center>
       <Flex align={'center'} justify={'space-evenly'} direction={'column'} w={'95%'}>
         <Flex align={'center'}>
-          <h1>Top Artists</h1>
+          <Text size={35} mr={'1ch'}>Top</Text>
+          <MenuChoice currentPage={'Artists'}/>
           <ActionIcon m={'md'} onClick={() => getTopArtists(true)}>
             <IconRefresh size={'xl'}/>
           </ActionIcon>
