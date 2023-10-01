@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import {clearToken} from './utils';
 import {ActionIcon, Center, Flex, SegmentedControl} from '@mantine/core';
 import {AlbumDisplay} from '../../components/Spotify/AlbumDisplay';
-import {IconRefresh} from '@tabler/icons-react';
+import {IconPhoto, IconRefresh} from '@tabler/icons-react';
 
 interface TrackInterface {
   album: {
@@ -32,6 +32,7 @@ export function Tracks() {
   const token = localStorage.getItem('spotifyJwt');
   const [timeRange, setTimeRange] = React.useState<string>('short_term');
   const [tracks, setTracks] = React.useState<TotalTracksInterface>({short_term: [], medium_term: [], long_term: []});
+  const [size, setSize] = React.useState<string>('200');
 
   if (!token) {
     clearToken();
@@ -42,6 +43,12 @@ export function Tracks() {
     {label: '6 month', value: 'medium_term'},
     {label: 'lifetime', value: 'long_term'}];
 
+  const sizeRanges = [
+    {label: <Center><IconPhoto size={15}/></Center>, value: '100'},
+    {label: <Center><IconPhoto size={20}/></Center>, value: '200'},
+    {label: <Center><IconPhoto size={30}/></Center>, value: '300'},
+  ];
+
   useEffect(() => {
     getTopTracks().then();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -50,7 +57,7 @@ export function Tracks() {
   async function getTopTracks(force: boolean = false) {
     // @ts-ignore-next-line
     if (!force && tracks[timeRange].length > 0)
-      return
+      return;
 
     const response = (await fetch(`http://localhost:3002/spotify/tracks/${timeRange}`, {
       method: 'GET',
@@ -107,23 +114,33 @@ export function Tracks() {
           <SegmentedControl fullWidth value={timeRange} onChange={setTimeRange} data={timeRanges} size={'md'}/>
         </div>
         <Center>
-          <Flex wrap={'wrap'} align={'stretch'} w={'95%'} style={{border: 'solid 0px red'}}>
+          <Flex wrap={'wrap'} align={'stretch'} mr={20} ml={30} justify={'center'} style={{border: 'solid 0px red'}}>
             {/*@ts-ignore TS7053*/}
             {tracks[timeRange] && tracks[timeRange].map((track, index) => (
               <AlbumDisplay
                 index={index + 1}
                 name={track.name}
                 artists={track.artists}
-                albumImg={track.album.images[0].url}
+                albumImg={(track.album.images[1]).url}
                 albumUrl={track.album.url}
                 url={track.url}
                 duration={track.duration_ms}
+                width={parseInt(size)}
               />
             ))
             }
           </Flex>
         </Center>
       </Flex>
+      <SegmentedControl pos={'fixed'}
+                        left={0}
+                        top={'50%'}
+                        style={{transform: 'translateY(-50%)'}}
+                        orientation={'vertical'}
+                        value={size}
+                        onChange={setSize}
+                        data={sizeRanges}
+      />
     </Center>
   );
 }
