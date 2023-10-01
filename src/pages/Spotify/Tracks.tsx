@@ -1,24 +1,30 @@
 import React, {useEffect} from 'react';
 import {clearToken} from './utils';
-import {ActionIcon, Center, Flex, Notification, SegmentedControl, Transition, Text} from '@mantine/core';
+import {Center, Flex, Notification, SegmentedControl, Text, Transition} from '@mantine/core';
 import {AlbumDisplay} from '../../components/Spotify/AlbumDisplay';
-import {IconRefresh, IconX} from '@tabler/icons-react';
+import {IconX} from '@tabler/icons-react';
 import {sizeRanges, timeRanges, TotalTracksInterface} from '../../components/Spotify/utils';
 import {MenuChoice} from '../../components/Spotify/MenuChoice';
 
 export function Tracks() {
   const token = localStorage.getItem('spotifyJwt');
   const [timeRange, setTimeRange] = React.useState<string>('short_term');
-  const [tracks, setTracks] = React.useState<TotalTracksInterface>({short_term: [], medium_term: [], long_term: []});
+  const [tracks, setTracks] = React.useState<TotalTracksInterface>(
+    JSON.parse(sessionStorage.getItem('tracks') ||
+      JSON.stringify({short_term: [], medium_term: [], long_term: []}))
+  );
+
   const [size, setSize] = React.useState<string>('200');
-  const [error, setError] = React.useState<string>('');
+  const [error, setError] = React.useState<string>();
 
   if (!token) {
     clearToken();
   }
 
   useEffect(() => {
-    getTopTracks().then();
+    if (timeRange) {
+      getTopTracks().then();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRange]);
 
@@ -30,11 +36,15 @@ export function Tracks() {
     }
   }, [error]);
 
-  async function getTopTracks(force: boolean = false) {
-    // @ts-ignore-next-line
-    if (!force && tracks[timeRange].length > 0)
-      return;
+  useEffect(() => {
+    if (tracks['short_term'].length > 0 || tracks['medium_term'].length > 0 || tracks['long_term'].length > 0)
+      sessionStorage.setItem('tracks', JSON.stringify(tracks));
+  }, [tracks]);
 
+  async function getTopTracks() {
+    // @ts-ignore-next-line
+    if (tracks[timeRange].length > 0 || !token)
+      return;
     const response = (await fetch(`http://localhost:3002/spotify/tracks/${timeRange}`, {
       method: 'GET',
       headers: {
@@ -55,7 +65,7 @@ export function Tracks() {
     setTracks((prevState) => {
       return {
         ...prevState,
-        [timeRange]:
+        [timeRange || 'short_term']:
           response['items'].map((track: any) => {
             return {
               album: {
@@ -77,33 +87,30 @@ export function Tracks() {
     });
   }
 
-  // @ts-ignore
   return (
     <Center>
       <Flex align={'center'} justify={'space-evenly'} direction={'column'} w={'95%'}>
         <Flex align={'center'}>
           <Text size={35} mr={'1ch'}>Top</Text>
           <MenuChoice currentPage={'Tracks'}/>
-          <ActionIcon m={'md'} onClick={() => getTopTracks(true)}>
-            <IconRefresh size={'xl'}/>
-          </ActionIcon>
         </Flex>
         <div style={{width: '100%'}}>
           <SegmentedControl fullWidth value={timeRange} onChange={setTimeRange} data={timeRanges} size={'md'}/>
         </div>
         <Center>
-          <Flex wrap={'wrap'} align={'stretch'} mr={20} ml={30} justify={'center'} >
-            {/*@ts-ignore TS7053*/}
+          <Flex wrap={'wrap'} align={'stretch'} mr={20} ml={30} justify={'center'}>
+            {/*@ts-ignore*/}
             {tracks[timeRange] && tracks[timeRange].map((track, index) => (
               <AlbumDisplay
                 index={index + 1}
                 name={track.name}
                 artists={track.artists}
-                albumImg={track.album.images[1].url}
-                albumUrl={track.album.url}
+                albumImg={track.album?.images[1].url}
+                albumUrl={track.album?.url}
                 url={track.url}
                 duration={track.duration_ms}
                 width={parseInt(size)}
+                key={track.name + index}
               />
             ))
             }

@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {clearToken} from './utils';
-import {ActionIcon, Center, Flex, Notification, SegmentedControl, Transition, Text} from '@mantine/core';
-import {IconRefresh, IconX} from '@tabler/icons-react';
+import {Center, Flex, Notification, SegmentedControl, Text, Transition} from '@mantine/core';
+import {IconX} from '@tabler/icons-react';
 import {sizeRanges, timeRanges, TotalArtistInterface} from '../../components/Spotify/utils';
 import {ArtistDisplay} from '../../components/Spotify/ArtistDisplay';
 import {MenuChoice} from '../../components/Spotify/MenuChoice';
@@ -9,7 +9,11 @@ import {MenuChoice} from '../../components/Spotify/MenuChoice';
 export function Artists() {
   const token = localStorage.getItem('spotifyJwt');
   const [timeRange, setTimeRange] = React.useState<string>('short_term');
-  const [artists, setArtists] = React.useState<TotalArtistInterface>({short_term: [], medium_term: [], long_term: []});
+  const [artists, setArtists] = React.useState<TotalArtistInterface>(
+    JSON.parse(sessionStorage.getItem('artists') ||
+      JSON.stringify({short_term: [], medium_term: [], long_term: []}))
+  );
+
   const [size, setSize] = React.useState<string>('200');
   const [error, setError] = React.useState<string>('');
 
@@ -30,9 +34,14 @@ export function Artists() {
     }
   }, [error]);
 
-  async function getTopArtists(force: boolean = false) {
+  useEffect(() => {
+    if (artists['short_term'].length > 0 || artists['medium_term'].length > 0 || artists['long_term'].length > 0)
+      sessionStorage.setItem('artists', JSON.stringify(artists));
+  }, [artists]);
+
+  async function getTopArtists() {
     // @ts-ignore-next-line
-    if (!force && artists[timeRange].length > 0)
+    if (artists[timeRange].length > 0 || !token)
       return;
 
     const response = (await fetch(`http://localhost:3002/spotify/artists/${timeRange}`, {
@@ -51,8 +60,6 @@ export function Artists() {
       setError(response.message);
       return;
     }
-
-    console.log(response['items']);
 
     setArtists((prevState) => {
       return {
@@ -75,9 +82,6 @@ export function Artists() {
         <Flex align={'center'}>
           <Text size={35} mr={'1ch'}>Top</Text>
           <MenuChoice currentPage={'Artists'}/>
-          <ActionIcon m={'md'} onClick={() => getTopArtists(true)}>
-            <IconRefresh size={'xl'}/>
-          </ActionIcon>
         </Flex>
         <div style={{width: '100%'}}>
           <SegmentedControl fullWidth value={timeRange} onChange={setTimeRange} data={timeRanges} size={'md'}/>
@@ -86,8 +90,13 @@ export function Artists() {
           <Flex wrap={'wrap'} align={'stretch'} mx={20} justify={'center'}>
             {/*@ts-ignore TS7053*/}
             {artists[timeRange] && artists[timeRange].map((artist, index) => (
-              <ArtistDisplay name={artist.name} img={artist.images[1].url} url={artist.url} index={index}
-                             width={parseInt(size)}/>
+              <ArtistDisplay name={artist.name}
+                             img={artist.images[1].url}
+                             url={artist.url}
+                             index={index}
+                             width={parseInt(size)}
+                             key={artist.name + index}
+              />
             ))
             }
           </Flex>
