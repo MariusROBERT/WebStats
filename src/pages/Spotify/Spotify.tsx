@@ -1,7 +1,7 @@
 import {Button, Center, Flex, SegmentedControl, Text} from '@mantine/core';
 import React, {useEffect} from 'react';
 import SpotifyLogo from '../../assets/Spotify_Logo_RGB_White.png';
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {ArtistDisplay} from '../../components/Spotify/ArtistDisplay';
 import {MenuChoice} from '../../components/Spotify/MenuChoice';
 import {sizeRanges, timeRanges} from '../../components/Spotify/utils';
@@ -12,7 +12,7 @@ export default function Spotify() {
   if (newToken) {
     localStorage.setItem('spotifyJwt', newToken);
   }
-  const jwt = localStorage.getItem('spotifyJwt');
+  const [jwt, setJwt] = React.useState(localStorage.getItem('spotifyJwt'));
   const [timeRange, setTimeRange] = React.useState<string>('short_term');
   const [size, setSize] = React.useState<string>('200');
   const [currentPage, setCurrentPage] = React.useState<string>(localStorage.getItem('spotifyPage') || 'Artists');
@@ -47,9 +47,9 @@ export default function Spotify() {
           <Center>
             <Flex wrap={'wrap'} align={'stretch'} mx={20} justify={'center'}>
               {currentPage === 'Artists' ?
-                <Artists size={size} timeRange={timeRange} token={jwt || ''}/>
+                <Artists size={size} timeRange={timeRange} token={jwt || ''} setJwt={setJwt}/>
                 : currentPage === 'Tracks' ?
-                  <Tracks size={size} timeRange={timeRange} token={jwt || ''}/>
+                  <Tracks size={size} timeRange={timeRange} token={jwt || ''} setJwt={setJwt}/>
                   : <h1>Unknow value</h1>}
             </Flex>
           </Center>
@@ -68,8 +68,17 @@ export default function Spotify() {
   );
 }
 
-function Artists({size, timeRange, token}: { size: string, timeRange: string, token: string }) {
-  const {isLoading, error, data} = useQuery({
+interface Props {
+  size: string,
+  timeRange: string,
+  token: string,
+  setJwt: (jwt: string | null) => void
+}
+
+function Artists({size, timeRange, token, setJwt}: Props) {
+  const queryClient = useQueryClient();
+
+  const {isLoading, data} = useQuery({
     queryKey: ['artists', timeRange],
     queryFn: () => fetch(`http://localhost:3002/spotify/artists/${timeRange}`, {
       method: 'GET',
@@ -88,10 +97,8 @@ function Artists({size, timeRange, token}: { size: string, timeRange: string, to
     );
   }
 
-  if (error) {
-    console.warn(error);
-    return 'An error has occurred: ';
-  }
+  if (data.message)
+    return unauthorized(data, setJwt, timeRange, queryClient, 'artists');
 
   return (
     data['items'].map((artist: any, index: any) => (
@@ -107,8 +114,9 @@ function Artists({size, timeRange, token}: { size: string, timeRange: string, to
   );
 }
 
-function Tracks({size, timeRange, token}: { size: string, timeRange: string, token: string }) {
-  const {isLoading, error, data} = useQuery({
+function Tracks({size, timeRange, token, setJwt}: Props) {
+  const queryClient = useQueryClient();
+  const {isLoading, data} = useQuery({
     queryKey: ['tracks', timeRange],
     queryFn: () => fetch(`http://localhost:3002/spotify/tracks/${timeRange}`, {
       method: 'GET',
@@ -128,10 +136,9 @@ function Tracks({size, timeRange, token}: { size: string, timeRange: string, tok
     );
   }
 
-  if (error) {
-    console.warn(error);
-    return 'An error has occurred: ';
-  }
+  if (data.message)
+    return unauthorized(data, setJwt, timeRange, queryClient, 'tracks');
+
 
   return (
     data['items'].map((track: any, index: any) => (
@@ -147,5 +154,21 @@ function Tracks({size, timeRange, token}: { size: string, timeRange: string, tok
         key={track.name + index}
       />
     ))
+  );
+}
+
+function unauthorized(data: any, setJwt: (jwt: string | null) => void, timeRange: string, queryClient: any, page: string) {
+  console.error(data);
+
+  if (data.statusCode === 401) {
+    localStorage.removeItem('spotifyJwt');
+    setJwt(null);
+  }
+
+  return (
+    <Flex w={'85vw'} m={'xl'} direction={'column'} align={'center'}>
+      <Text fz={'3em'} color={'red'}>{data.message}</Text>
+      <Button onClick={() => queryClient.invalidateQueries({ queryKey: [page, timeRange] })}>Refresh</Button>
+    </Flex>
   );
 }
