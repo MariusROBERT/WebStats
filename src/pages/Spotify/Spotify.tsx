@@ -1,7 +1,11 @@
-import {Button, Flex} from '@mantine/core';
-import React from 'react';
+import {Button, Center, Flex, SegmentedControl, Text} from '@mantine/core';
+import React, {useEffect} from 'react';
 import SpotifyLogo from '../../assets/Spotify_Logo_RGB_White.png';
-import {IconMicrophone2, IconMusic} from '@tabler/icons-react';
+import {useQuery} from '@tanstack/react-query';
+import {ArtistDisplay} from '../../components/Spotify/ArtistDisplay';
+import {MenuChoice} from '../../components/Spotify/MenuChoice';
+import {sizeRanges, timeRanges} from '../../components/Spotify/utils';
+import {AlbumDisplay} from '../../components/Spotify/AlbumDisplay';
 
 export default function Spotify() {
   const newToken = new URLSearchParams(window.location.search).get('jwt');
@@ -9,6 +13,13 @@ export default function Spotify() {
     localStorage.setItem('spotifyJwt', newToken);
   }
   const jwt = localStorage.getItem('spotifyJwt');
+  const [timeRange, setTimeRange] = React.useState<string>('short_term');
+  const [size, setSize] = React.useState<string>('200');
+  const [currentPage, setCurrentPage] = React.useState<string>(localStorage.getItem('spotifyPage') || 'Artists');
+
+  useEffect(() => {
+    localStorage.setItem('spotifyPage', currentPage);
+  }, [currentPage]);
 
   if (!jwt)
     return (
@@ -22,28 +33,118 @@ export default function Spotify() {
       </Flex>
     );
 
-  const options: { icon: JSX.Element, link: string }[] = [
-    {
-      icon: <><IconMusic size={100}/>Top Tracks</>,
-      link: '/spotify/tracks'
-    },
-    {
-      icon: <><IconMicrophone2 size={100}/>Top Artists</>,
-      link: '/spotify/artists'
-    },
-  ];
-
   return (
     <Flex justify={'space-evenly'} align={'center'} m={50} direction={'row'} wrap={'wrap'}>
-      {options.map((option) => (
-
-        <Button style={{height: 300, width: 300}} m={50} variant={'light'} size={'lg'} component={'a'}
-                href={option.link}>
-          <Flex direction={'column'} align={'center'}>
-            {option.icon}
+      <Center>
+        <Flex align={'center'} justify={'space-evenly'} direction={'column'} w={'95%'}>
+          <Flex align={'center'}>
+            <Text size={35} mr={'1ch'}>Top</Text>
+            <MenuChoice currentPage={currentPage} setCurrentPage={setCurrentPage}/>
           </Flex>
-        </Button>
-      ))}
+          <div style={{width: '100%'}}>
+            <SegmentedControl fullWidth value={timeRange} onChange={setTimeRange} data={timeRanges} size={'md'}/>
+          </div>
+          <Center>
+            <Flex wrap={'wrap'} align={'stretch'} mx={20} justify={'center'}>
+              {currentPage === 'Artists' ?
+                <Artists size={size} timeRange={timeRange} token={jwt || ''}/>
+                : currentPage === 'Tracks' ?
+                  <Tracks size={size} timeRange={timeRange} token={jwt || ''}/>
+                  : <h1>Unknow value</h1>}
+            </Flex>
+          </Center>
+        </Flex>
+        <SegmentedControl pos={'fixed'}
+                          left={0}
+                          top={'50%'}
+                          style={{transform: 'translateY(-50%)'}}
+                          orientation={'vertical'}
+                          value={size}
+                          onChange={setSize}
+                          data={sizeRanges}
+        />
+      </Center>
     </Flex>
+  );
+}
+
+function Artists({size, timeRange, token}: { size: string, timeRange: string, token: string }) {
+  const {isLoading, error, data} = useQuery({
+    queryKey: ['artists', timeRange],
+    queryFn: () => fetch(`http://localhost:3002/spotify/artists/${timeRange}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }
+    }).then((r) => r.json()),
+    staleTime: 1000 * 60 * 60 * 24,
+  });
+
+  if (isLoading) {
+    return (
+      [...Array(10)].map((_, index) => <ArtistDisplay loading key={index} width={parseInt(size)}/>
+      )
+    );
+  }
+
+  if (error) {
+    console.warn(error);
+    return 'An error has occurred: ';
+  }
+
+  return (
+    data['items'].map((artist: any, index: any) => (
+      <ArtistDisplay name={artist.name}
+                     img={artist.images[1].url}
+                     url={artist.external_urls.spotify}
+                     index={index}
+                     width={parseInt(size)}
+                     key={artist.name + index}
+      />
+    ))
+  );
+}
+
+function Tracks({size, timeRange, token}: { size: string, timeRange: string, token: string }) {
+  const {isLoading, error, data} = useQuery({
+    queryKey: ['tracks', timeRange],
+    queryFn: () => fetch(`http://localhost:3002/spotify/tracks/${timeRange}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }
+    }).then((r) => r.json()),
+    staleTime: 1000 * 60 * 60 * 24,
+    cacheTime: 1000 * 60 * 60 * 24 * 7,
+  });
+
+  if (isLoading) {
+    return (
+      [...Array(10)].map((_, index) => <AlbumDisplay loading key={index} width={parseInt(size)}/>
+      )
+    );
+  }
+
+  if (error) {
+    console.warn(error);
+    return 'An error has occurred: ';
+  }
+
+  return (
+    data['items'].map((track: any, index: any) => (
+      <AlbumDisplay
+        index={index + 1}
+        name={track.name}
+        artists={track.artists}
+        albumImg={track.album.images[1].url}
+        albumUrl={track.album.external_urls.spotify}
+        url={track.external_urls.spotify}
+        duration={track.duration_ms}
+        width={parseInt(size)}
+        key={track.name + index}
+      />
+    ))
   );
 }

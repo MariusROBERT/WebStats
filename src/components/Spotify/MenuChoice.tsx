@@ -3,6 +3,7 @@ import React, {useEffect} from 'react';
 
 interface Props {
   currentPage: string;
+  setCurrentPage: (page: string) => void;
 }
 
 export function MenuChoice(props: Props) {
@@ -12,9 +13,8 @@ export function MenuChoice(props: Props) {
   pages.splice(0, 0, pages.splice(pages.findIndex((page) => page === currentPage), 1)[0]);
 
   useEffect(() => {
-    if (currentPage && !window.location.pathname.includes(currentPage.toLowerCase()))
-      window.location.href = '/spotify/' + currentPage.toLowerCase();
-  }, [currentPage]);
+    props.setCurrentPage(currentPage || '');
+  }, [currentPage, props]);
 
   return (
     <Select
