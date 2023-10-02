@@ -1,79 +1,59 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {clearToken} from './utils';
-import {Center, Flex, Notification, SegmentedControl, Text, Transition} from '@mantine/core';
-import {IconX} from '@tabler/icons-react';
-import {sizeRanges, timeRanges, TotalArtistInterface} from '../../components/Spotify/utils';
+import {Center, Flex, SegmentedControl, Text} from '@mantine/core';
+import {sizeRanges, timeRanges} from '../../components/Spotify/utils';
 import {ArtistDisplay} from '../../components/Spotify/ArtistDisplay';
 import {MenuChoice} from '../../components/Spotify/MenuChoice';
+import {useQuery} from '@tanstack/react-query';
 
-export function Artists() {
-  const token = localStorage.getItem('spotifyJwt');
-  const [timeRange, setTimeRange] = React.useState<string>('short_term');
-  const [artists, setArtists] = React.useState<TotalArtistInterface>(
-    JSON.parse(sessionStorage.getItem('artists') ||
-      JSON.stringify({short_term: [], medium_term: [], long_term: []}))
-  );
-
-  const [size, setSize] = React.useState<string>('200');
-  const [error, setError] = React.useState<string>('');
-
-  if (!token) {
-    clearToken();
-  }
-
-  useEffect(() => {
-    getTopArtists().then();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeRange]);
-
-  useEffect(() => {
-    if (error) {
-      setTimeout(() => {
-        setError('');
-      }, 3000);
-    }
-  }, [error]);
-
-  useEffect(() => {
-    if (artists['short_term'].length > 0 || artists['medium_term'].length > 0 || artists['long_term'].length > 0)
-      sessionStorage.setItem('artists', JSON.stringify(artists));
-  }, [artists]);
-
-  async function getTopArtists() {
-    // @ts-ignore-next-line
-    if (artists[timeRange].length > 0 || !token)
-      return;
-
-    const response = (await fetch(`http://localhost:3002/spotify/artists/${timeRange}`, {
+function ArtistsData({size, timeRange, token}: { size: string, timeRange: string, token: string }) {
+  const {isLoading, error, data} = useQuery({
+    queryKey: ['artists', timeRange],
+    queryFn: () => fetch(`http://localhost:3002/spotify/artists/${timeRange}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       }
-    }).then((r) => r.json()));
+    }).then((r) => r.json()),
+    staleTime: 1000 * 60 * 60 * 24,
+  });
 
-    if (response.message) {
-      console.warn(response);
-      if (response.message === 'Unauthorized') {
-        clearToken();
-      }
-      setError(response.message);
-      return;
-    }
+  if (isLoading) {
+    return (
+      [...Array(10)].map((_, index) => (
+          <ArtistDisplay loading/>
+        )
+      )
+    );
+  }
 
-    setArtists((prevState) => {
-      return {
-        ...prevState,
-        [timeRange]:
-          response['items'].map((artist: any) => {
-            return {
-              name: artist.name,
-              images: artist.images,
-              url: artist.external_urls.spotify,
-            };
-          })
-      };
-    });
+  if (error) {
+    console.warn(error);
+    return 'An error has occurred: ';
+  }
+
+  return (
+    data['items'].map((artist: any, index: any) => (
+      <ArtistDisplay name={artist.name}
+                     img={artist.images[1].url}
+                     url={artist.external_urls.spotify}
+                     index={index}
+                     width={parseInt(size)}
+                     key={artist.name + index}
+      />
+    ))
+  );
+}
+
+export function Artists() {
+  const token = localStorage.getItem('spotifyJwt');
+  const [timeRange, setTimeRange] = React.useState<string>('short_term');
+
+  const [size, setSize] = React.useState<string>('200');
+
+  if (!token) {
+    clearToken();
   }
 
   return (
@@ -88,17 +68,7 @@ export function Artists() {
         </div>
         <Center>
           <Flex wrap={'wrap'} align={'stretch'} mx={20} justify={'center'}>
-            {/*@ts-ignore TS7053*/}
-            {artists[timeRange] && artists[timeRange].map((artist, index) => (
-              <ArtistDisplay name={artist.name}
-                             img={artist.images[1].url}
-                             url={artist.url}
-                             index={index}
-                             width={parseInt(size)}
-                             key={artist.name + index}
-              />
-            ))
-            }
+            <ArtistsData size={size} timeRange={timeRange} token={token || ''}/>
           </Flex>
         </Center>
       </Flex>
@@ -111,22 +81,6 @@ export function Artists() {
                         onChange={setSize}
                         data={sizeRanges}
       />
-      <Transition mounted={!!error} transition={'slide-left'}>
-        {(style) =>
-          <Notification
-            pos={'fixed'}
-            top={110}
-            right={10}
-            withBorder
-            withCloseButton={false}
-            icon={<IconX/>}
-            color={'red'}
-            style={style}
-          >
-            {error}
-          </Notification>
-        }
-      </Transition>
     </Center>
   );
 }

@@ -7,9 +7,12 @@ import {MantineProvider} from '@mantine/core';
 import MainHeader from './components/MainHeader';
 import {Tracks} from './pages/Spotify/Tracks';
 import {Artists} from './pages/Spotify/Artists';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+
 
 function App() {
   const [primaryColor, setPrimaryColor] = React.useState('blue');
+  const queryClient = new QueryClient();
 
   return (
     <MantineProvider
@@ -25,18 +28,20 @@ function App() {
       withGlobalStyles
       withNormalizeCSS
     >
-      <BrowserRouter>
-        <MainHeader onPrimaryColor={setPrimaryColor}/> {/*test*/}
-        <Routes>
-          <Route path={'/'} element={<Home/>}/>
-          <Route path={'/spotify'}>
-            <Route path={''} element={<Spotify/>}/>
-            <Route path={'tracks'} element={<Tracks/>}/>
-            <Route path={'artists'} element={<Artists/>}/>
-          </Route>
-          <Route path={'/youtube'} element={<Youtube/>}/>
-        </Routes>
-      </BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <MainHeader onPrimaryColor={setPrimaryColor}/> {/*test*/}
+          <Routes>
+            <Route path={'/'} element={<Home/>}/>
+            <Route path={'/spotify'}>
+              <Route path={''} element={<Spotify/>}/>
+              <Route path={'tracks'} element={<Tracks/>}/>
+              <Route path={'artists'} element={<Artists/>}/>
+            </Route>
+            <Route path={'/youtube'} element={<Youtube/>}/>
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
     </MantineProvider>
   );
 }
