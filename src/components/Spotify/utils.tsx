@@ -5,7 +5,7 @@ import React from 'react';
 export const timeRanges = [
   {label: '4 weeks', value: 'short_term'},
   {label: '6 month', value: 'medium_term'},
-  {label: 'lifetime', value: 'long_term'}];
+  {label: 'Lifetime', value: 'long_term'}];
 
 
 export const sizeRanges = [
