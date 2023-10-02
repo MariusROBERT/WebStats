@@ -101,6 +101,7 @@ function Artists({size, timeRange, token}: { size: string, timeRange: string, to
                      index={index}
                      width={parseInt(size)}
                      key={artist.name + index}
+                     genres={artist.genres}
       />
     ))
   );

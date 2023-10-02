@@ -1,4 +1,4 @@
-import {Anchor, Card, Container, Divider, Image, Skeleton, Text} from '@mantine/core';
+import {Anchor, Badge, Card, Container, Divider, Flex, Image, ScrollArea, Skeleton, Text} from '@mantine/core';
 import React from 'react';
 
 export interface ArtistInterface {
@@ -8,6 +8,7 @@ export interface ArtistInterface {
   index?: number;
   width?: number;
   loading?: boolean;
+  genres?: string[];
 }
 
 export function ArtistDisplay(props: ArtistInterface) {
@@ -22,6 +23,15 @@ export function ArtistDisplay(props: ArtistInterface) {
           </Anchor>
         </Skeleton>
       </Card.Section>
+      <ScrollArea h={'xl'} type={'never'}>
+        <Flex direction={'row'} pt={5}>
+        {
+          props.genres?.map((genre, index) => (
+            <Badge size={'xs'} mr={5}>{genre}</Badge>
+          ))
+        }
+        </Flex>
+      </ScrollArea>
       <Divider my={5}/>
       <Container maw={size} m={0} p={0}>
         <Skeleton visible={props.loading || false}>
