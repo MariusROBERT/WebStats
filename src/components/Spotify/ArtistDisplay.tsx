@@ -53,7 +53,7 @@ export function ArtistDisplay(props: ArtistInterface) {
             <Text m={0} p={0} size={size >= 200 ? 'xl' : 'xs'}
                   truncate={'end'} align={'right'}
                   title={props.name || 'Loading...'}
-                  color={'white'}
+                  color={theme.colorScheme === 'dark' ? 'white' : 'black'}
             >
               {props.name || 'Loading...'}
             </Text>

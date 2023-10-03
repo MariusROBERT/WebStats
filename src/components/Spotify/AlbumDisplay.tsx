@@ -44,7 +44,7 @@ export function AlbumDisplay(props: AlbumInterface) {
             <Text mt={5} mr={0} m={0} p={0} size={'md'} w={'100%'}
                   truncate={'end'} align={'right'}
                   title={props.name}
-                  color={'white'}
+                  color={theme.colorScheme === 'dark' ? 'white' : 'black'}
             >
               {props.name}
             </Text>
@@ -61,7 +61,7 @@ export function AlbumDisplay(props: AlbumInterface) {
                 >
                   {artist.name}
                 </Anchor>
-                {(index === props.artists?.length ? -1 : 0) ? '' : ', '}
+                {(index === (props.artists?.length || 0) - 1) ? '' : ', '}
               </>;
             }) || 'Loading...'
             }
