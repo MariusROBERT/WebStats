@@ -6,6 +6,7 @@ import {ArtistDisplay} from '../../components/Spotify/ArtistDisplay';
 import {MenuChoice} from '../../components/Spotify/MenuChoice';
 import {sizeRanges, timeRanges} from '../../components/Spotify/utils';
 import {AlbumDisplay} from '../../components/Spotify/AlbumDisplay';
+import {API_URL} from "../../constants";
 
 export default function Spotify() {
   const newToken = new URLSearchParams(window.location.search).get('jwt');
@@ -28,7 +29,7 @@ export default function Spotify() {
       <Flex style={{display: jwt ? 'block' : 'hidden'}} align={'center'} justify={'space-around'}>
         <Button fz={'xl'} size={'xl'}
                 component={'a'}
-                href={'https://paco.pening.fr:6930/spotify/login'}
+                href={API_URL + '/spotify/login'}
                 rightIcon={<img width={100} src={SpotifyLogo} alt="Spotify logo"/>}>
           Login in with
         </Button>
@@ -83,7 +84,7 @@ function Artists({size, timeRange, token, setJwt}: Props) {
 
   const {isLoading, data} = useQuery({
     queryKey: ['artists', timeRange],
-    queryFn: () => fetch(`https://paco.pening.fr:6930/spotify/artists/${timeRange}`, {
+    queryFn: () => fetch(API_URL + '/spotify/artists/' + timeRange, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -121,7 +122,7 @@ function Tracks({size, timeRange, token, setJwt}: Props) {
   const queryClient = useQueryClient();
   const {isLoading, data} = useQuery({
     queryKey: ['tracks', timeRange],
-    queryFn: () => fetch(`https://paco.pening.fr:6930/spotify/tracks/${timeRange}`, {
+    queryFn: () => fetch(API_URL + '/spotify/tracks/' + timeRange, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
