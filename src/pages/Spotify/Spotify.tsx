@@ -1,4 +1,4 @@
-import {Button, Center, Flex, SegmentedControl, Text} from '@mantine/core';
+import {Button, Center, Flex, SegmentedControl, Text, useMantineTheme} from '@mantine/core';
 import React, {useEffect} from 'react';
 import SpotifyLogo from '../../assets/Spotify_Logo_RGB_White.png';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
@@ -17,6 +17,8 @@ export default function Spotify() {
   const [size, setSize] = React.useState<string>('200');
   const [currentPage, setCurrentPage] = React.useState<string>(localStorage.getItem('spotifyPage') || 'Artists');
 
+  const theme = useMantineTheme();
+
   useEffect(() => {
     localStorage.setItem('spotifyPage', currentPage);
   }, [currentPage]);
@@ -34,7 +36,8 @@ export default function Spotify() {
     );
 
   return (
-    <Flex justify={'space-evenly'} align={'center'} m={50} direction={'row'} wrap={'wrap'}>
+    <Flex justify={'space-evenly'} align={'center'} m={theme.fn.smallerThan('md') ? 0 : 50} direction={'row'}
+          wrap={'wrap'}>
       <Center>
         <Flex align={'center'} justify={'space-evenly'} direction={'column'} w={'95%'}>
           <Flex align={'center'}>
@@ -45,7 +48,7 @@ export default function Spotify() {
             <SegmentedControl fullWidth value={timeRange} onChange={setTimeRange} data={timeRanges} size={'md'}/>
           </div>
           <Center>
-            <Flex wrap={'wrap'} align={'stretch'} mx={20} justify={'center'}>
+            <Flex wrap={'wrap'} align={'stretch'} mx={theme.fn.smallerThan('md') ? 0 : 20} justify={'center'}>
               {currentPage === 'Artists' ?
                 <Artists size={size} timeRange={timeRange} token={jwt || ''} setJwt={setJwt}/>
                 : currentPage === 'Tracks' ?
@@ -168,7 +171,7 @@ function unauthorized(data: any, setJwt: (jwt: string | null) => void, timeRange
   return (
     <Flex w={'85vw'} m={'xl'} direction={'column'} align={'center'}>
       <Text fz={'3em'} color={'red'}>{data.message}</Text>
-      <Button onClick={() => queryClient.invalidateQueries({ queryKey: [page, timeRange] })}>Refresh</Button>
+      <Button onClick={() => queryClient.invalidateQueries({queryKey: [page, timeRange]})}>Refresh</Button>
     </Flex>
   );
 }

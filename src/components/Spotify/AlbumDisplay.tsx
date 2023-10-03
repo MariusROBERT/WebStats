@@ -1,4 +1,4 @@
-import {Anchor, Container, Flex, Image, Indicator, Skeleton, Text} from '@mantine/core';
+import {Anchor, Container, Flex, Image, Indicator, Skeleton, Text, useMantineTheme} from '@mantine/core';
 
 export interface AlbumInterface {
   name?: string;
@@ -13,8 +13,11 @@ export interface AlbumInterface {
 }
 
 export function AlbumDisplay(props: AlbumInterface) {
+  const theme = useMantineTheme();
+
   return (
-    <Flex direction={'column'} m={'md'} align={'flex-end'} w={props.width || 200}>
+    <Flex direction={'column'} m={'md'} mx={theme.fn.smallerThan('md') ? 10 : 'md'} align={'flex-end'}
+          w={props.width || 200}>
       <Skeleton visible={props.loading || false}>
         <Indicator label={props.loading ? undefined : props.index}
                    position={'top-start'}
