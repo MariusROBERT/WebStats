@@ -26,7 +26,7 @@ export default function Spotify() {
       <Flex style={{display: jwt ? 'block' : 'hidden'}} align={'center'} justify={'space-around'}>
         <Button fz={'xl'} size={'xl'}
                 component={'a'}
-                href={'http://localhost:3002/spotify/login'}
+                href={'http://paco.pening.fr:6930/spotify/login'}
                 rightIcon={<img width={100} src={SpotifyLogo} alt="Spotify logo"/>}>
           Login in with
         </Button>
@@ -80,7 +80,7 @@ function Artists({size, timeRange, token, setJwt}: Props) {
 
   const {isLoading, data} = useQuery({
     queryKey: ['artists', timeRange],
-    queryFn: () => fetch(`http://localhost:3002/spotify/artists/${timeRange}`, {
+    queryFn: () => fetch(`http://paco.pening.fr:6930/spotify/artists/${timeRange}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ function Tracks({size, timeRange, token, setJwt}: Props) {
   const queryClient = useQueryClient();
   const {isLoading, data} = useQuery({
     queryKey: ['tracks', timeRange],
-    queryFn: () => fetch(`http://localhost:3002/spotify/tracks/${timeRange}`, {
+    queryFn: () => fetch(`http://paco.pening.fr:6930/spotify/tracks/${timeRange}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
