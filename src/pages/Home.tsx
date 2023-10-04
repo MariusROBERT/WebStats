@@ -11,7 +11,7 @@ export default function Home() {
           <Text>
             Welcome to Webstats, a website that allows you to see your statistics from various websites.
             <br/>
-            There's currently only one website available and one planned, but more will be added in the future.
+            Youtube and Spotify are currently available. More will be added in the future.
             <br/>
             To get started, click on the wanted website button in the header and follow the instructions.
             <br/>
