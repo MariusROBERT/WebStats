@@ -4,13 +4,13 @@ import React, {useEffect} from 'react';
 interface Props {
   currentPage: string;
   setCurrentPage: (page: string) => void;
+  pages: string[];
 }
 
 export function MenuChoice(props: Props) {
   const [currentPage, setCurrentPage] = React.useState<string | null>(props.currentPage);
 
-  const pages = ['Artists', 'Tracks'];
-  pages.splice(0, 0, pages.splice(pages.findIndex((page) => page === currentPage), 1)[0]);
+  props.pages.splice(0, 0, props.pages.splice(props.pages.findIndex((page) => page === currentPage), 1)[0]);
 
   useEffect(() => {
     props.setCurrentPage(currentPage || '');
@@ -29,7 +29,7 @@ export function MenuChoice(props: Props) {
       variant={'unstyled'}
       size={'35px'}
       w={200}
-      data={pages}
+      data={props.pages}
       value={currentPage}
       onChange={setCurrentPage}
     />

@@ -37,15 +37,18 @@ export function ArtistDisplay(props: ArtistInterface) {
           </Anchor>
         </Skeleton>
       </Card.Section>
-      <ScrollArea h={'xl'} type={'never'}>
-        <Flex direction={'row'} pt={5}>
-          {
-            props.genres?.map((genre) => (
-              <Badge size={'xs'} mr={5}>{genre}</Badge>
-            ))
-          }
-        </Flex>
-      </ScrollArea>
+      {props.genres ?
+        <ScrollArea h={'xl'} type={'never'}>
+          <Flex direction={'row'} pt={5}>
+            {
+              props.genres?.map((genre) => (
+                <Badge size={'xs'} mr={5}>{genre}</Badge>
+              ))
+            }
+          </Flex>
+        </ScrollArea>
+        : null
+      }
       <Divider my={5}/>
       <Container maw={size} m={0} p={0}>
         <Skeleton visible={props.loading || false}>

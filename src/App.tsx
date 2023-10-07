@@ -7,6 +7,7 @@ import {ColorScheme, ColorSchemeProvider, MantineProvider} from '@mantine/core';
 import MainHeader from './components/MainHeader';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {useColorScheme} from '@mantine/hooks';
+import Deezer from './pages/Deezer/Deezer';
 
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
               <Route path={'/'} element={<Home/>}/>
               <Route path={'/spotify'} element={<Spotify/>}/>
               <Route path={'/youtube'} element={<Youtube/>}/>
+              <Route path={'/deezer'} element={<Deezer/>}/>
             </Routes>
           </BrowserRouter>
         </QueryClientProvider>

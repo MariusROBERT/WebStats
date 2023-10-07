@@ -4,7 +4,7 @@ import SpotifyLogo from '../../assets/Spotify_Logo_RGB_White.png';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {ArtistDisplay} from '../../components/Spotify/ArtistDisplay';
 import {MenuChoice} from '../../components/Spotify/MenuChoice';
-import {sizeRanges, timeRanges} from '../../components/Spotify/utils';
+import {sizeRanges, spotifyTimeRanges} from '../../components/Spotify/utils';
 import {AlbumDisplay} from '../../components/Spotify/AlbumDisplay';
 import {API_URL} from "../../constants";
 
@@ -43,10 +43,10 @@ export default function Spotify() {
         <Flex align={'center'} justify={'space-evenly'} direction={'column'} w={'95%'}>
           <Flex align={'center'}>
             <Text size={35} mr={'1ch'}>Top</Text>
-            <MenuChoice currentPage={currentPage} setCurrentPage={setCurrentPage}/>
+            <MenuChoice currentPage={currentPage} setCurrentPage={setCurrentPage} pages={['Artists', 'Tracks']}/>
           </Flex>
           <div style={{width: '100%'}}>
-            <SegmentedControl fullWidth value={timeRange} onChange={setTimeRange} data={timeRanges} size={'md'}/>
+            <SegmentedControl fullWidth value={timeRange} onChange={setTimeRange} data={spotifyTimeRanges} size={'md'}/>
           </div>
           <Center>
             <Flex wrap={'wrap'} align={'stretch'} mx={theme.fn.smallerThan('md') ? 0 : 20} justify={'center'}>
@@ -101,8 +101,24 @@ function Artists({size, timeRange, token, setJwt}: Props) {
     );
   }
 
-  if (data.message)
-    return unauthorized(data, setJwt, timeRange, queryClient, 'artists');
+  if (data.message) {
+    if (data.statusCode === 401) {
+      localStorage.removeItem('spotifyJwt');
+      setJwt(null);
+    }
+
+    return (
+      <Flex w={'85vw'} m={'xl'} direction={'column'} align={'center'}>
+        <Text fz={'3em'} color={'red'}>{data.message}</Text>
+        <Button onClick={() => {
+          queryClient.invalidateQueries({queryKey: ['artists', timeRange]});
+        }}>Refresh</Button>
+      </Flex>
+    );
+    // return unauthorized(data, setJwt, timeRange, queryClient, 'artists');
+  }
+
+  console.log(data);
 
   return (
     data['items'].map((artist: any, index: any) => (
@@ -140,9 +156,24 @@ function Tracks({size, timeRange, token, setJwt}: Props) {
     );
   }
 
-  if (data.message)
-    return unauthorized(data, setJwt, timeRange, queryClient, 'tracks');
+  if (data.message) {
+    if (data.statusCode === 401) {
+      localStorage.removeItem('spotifyJwt');
+      setJwt(null);
+    }
 
+    return (
+      <Flex w={'85vw'} m={'xl'} direction={'column'} align={'center'}>
+        <Text fz={'3em'} color={'red'}>{data.message}</Text>
+        <Button onClick={() => {
+          queryClient.invalidateQueries({queryKey: ['tracks', timeRange]});
+        }}>Refresh</Button>
+      </Flex>
+    );
+    // return unauthorized(data, setJwt, timeRange, queryClient, 'tracks');
+  }
+
+  console.log(data);
 
   return (
     data['items'].map((track: any, index: any) => (
@@ -158,21 +189,5 @@ function Tracks({size, timeRange, token, setJwt}: Props) {
         key={track.name + index}
       />
     ))
-  );
-}
-
-function unauthorized(data: any, setJwt: (jwt: string | null) => void, timeRange: string, queryClient: any, page: string) {
-  console.error(data);
-
-  if (data.statusCode === 401) {
-    localStorage.removeItem('spotifyJwt');
-    setJwt(null);
-  }
-
-  return (
-    <Flex w={'85vw'} m={'xl'} direction={'column'} align={'center'}>
-      <Text fz={'3em'} color={'red'}>{data.message}</Text>
-      <Button onClick={() => queryClient.invalidateQueries({queryKey: [page, timeRange]})}>Refresh</Button>
-    </Flex>
   );
 }

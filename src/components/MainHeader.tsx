@@ -10,7 +10,14 @@ import {
   Transition,
   useMantineColorScheme
 } from '@mantine/core';
-import {IconBrandSpotify, IconBrandYoutube, IconHome2, IconMoonStars, IconSun} from '@tabler/icons-react';
+import {
+  IconBrandDeezer,
+  IconBrandSpotify,
+  IconBrandYoutube,
+  IconHome2,
+  IconMoonStars,
+  IconSun
+} from '@tabler/icons-react';
 import {useDisclosure} from '@mantine/hooks';
 import {useLocation} from 'react-router-dom';
 import React from 'react';
@@ -59,6 +66,7 @@ export default function MainHeader(props: Props) {
     {title: 'Home', path: '/', icon: <IconHome2 size={25}/>, working: true},
     {title: 'Youtube', path: '/youtube', icon: <IconBrandYoutube size={25}/>, working: true},
     {title: 'Spotify', path: '/spotify', icon: <IconBrandSpotify size={25}/>, working: true},
+    {title: 'Deezer', path: '/deezer', icon: <IconBrandDeezer size={25}/>, working: true},
   ];
   const [opened, {toggle, close}] = useDisclosure(false);
   const [currentPage, setCurrentPage] = React.useState('Home');
@@ -74,6 +82,9 @@ export default function MainHeader(props: Props) {
     } else if (location.pathname.includes('spotify')) {
       props.onPrimaryColor('green');
       setCurrentPage('Spotify');
+    }else if (location.pathname.includes('deezer')) {
+      props.onPrimaryColor('blue');
+      setCurrentPage('Deezer');
     } else {
       props.onPrimaryColor('blue');
       setCurrentPage('Home');

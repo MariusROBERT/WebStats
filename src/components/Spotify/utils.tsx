@@ -2,11 +2,18 @@ import {Center} from '@mantine/core';
 import {IconPhoto} from '@tabler/icons-react';
 import React from 'react';
 
-export const timeRanges = [
+export const spotifyTimeRanges = [
   {label: '4 weeks', value: 'short_term'},
   {label: '6 month', value: 'medium_term'},
   {label: 'Lifetime', value: 'long_term'}];
 
+export const deezerTimeRanges = [
+  {label: '30 days', value: '30d'},
+  {label: '6 months', value: '6month'},
+  {label: '1 year', value: '1year'},
+  {label: 'Month start', value: 'monthstart'},
+  {label: 'Year start', value: 'yearstart'},
+];
 
 export const sizeRanges = [
   {label: <Center><IconPhoto size={15}/></Center>, value: '100'},
